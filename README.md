@@ -39,7 +39,7 @@ Metode ini mengunduh file biner mandiri tanpa memerlukan Node.js di komputer And
 Buka terminal dan jalankan perintah berikut:
 
 ```bash
-curl -fsSL [https://raw.githubusercontent.com/prastya-dev/JCKW_AGENT/main/scripts/install.sh](https://raw.githubusercontent.com/prastya-dev/JCKW_AGENT/main/scripts/install.sh) | bash
+curl -fsSL [https://raw.githubusercontent.com/prastya-dev/JCKW_AGENT/scripts/install.sh](https://raw.githubusercontent.com/prastya-dev/JCKW_AGENT/scripts/install.sh) | bash
 
 ```
 
@@ -48,7 +48,7 @@ curl -fsSL [https://raw.githubusercontent.com/prastya-dev/JCKW_AGENT/main/script
 Buka PowerShell sebagai Administrator dan jalankan perintah berikut:
 
 ```powershell
-irm [https://raw.githubusercontent.com/prastya-dev/JCKW_AGENT/main/scripts/install.ps1](https://raw.githubusercontent.com/prastya-dev/JCKW_AGENT/main/scripts/install.ps1) | iex
+irm [https://raw.githubusercontent.com/prastya-dev/JCKW_AGENT/scripts/install.ps1](https://raw.githubusercontent.com/prastya-dev/JCKW_AGENT/scripts/install.ps1) | iex
 
 ```
 
