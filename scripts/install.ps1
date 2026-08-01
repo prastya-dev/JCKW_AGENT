@@ -1,118 +1,66 @@
 # ============================================================
-# JCKW-AGENT Install Script (Windows - PowerShell)
-# Usage: irm https://raw.githubusercontent.com/prastya-dev/JCKW_AGENT/main/scripts/install.ps1 | iex
+# JCKW-AGENT Install Script (Windows - PowerShell - Binary Only)
 # ============================================================
 
-$ErrorActionPreference = "Stop"
+try {
+    $Repo = "prastya-dev/JCKW_AGENT"
+    $BinName = "jckw.exe"
+    $InstallDir = "$env:LOCALAPPDATA\jckw"
 
-# PASTIKAN NAMA REPO SESUAI (Perhatikan huruf besar/kecilnya jika berpengaruh)
-$Repo    = "prastya-dev/JCKW_AGENT"
-$BinName = "jckw.exe"
-$InstallDir = "$env:LOCALAPPDATA\jckw"
+    Write-Host ""
+    Write-Host "  JCKW-AGENT Installer" -ForegroundColor Cyan
+    Write-Host "  by prastya-dev" -ForegroundColor DarkGray
+    Write-Host ""
 
-function Write-Banner {
-  Write-Host ""
-  Write-Host "  JCKW-AGENT Installer" -ForegroundColor Cyan
-  Write-Host "  by prastya-dev" -ForegroundColor DarkGray
-  Write-Host ""
-}
+    Write-Host "  -> Mencari rilis versi terbaru di GitHub..." -ForegroundColor Cyan
+    $apiUrl = "https://api.github.com/repos/$Repo/releases/latest"
+    $response = Invoke-RestMethod -Uri $apiUrl -UseBasicParsing
+    $Version = $response.tag_name
 
-function Write-Info { param($Msg) Write-Host "  -> $Msg" -ForegroundColor Cyan }
-function Write-Success { param($Msg) Write-Host "  v $Msg" -ForegroundColor Green }
-function Write-Err { param($Msg) Write-Host "  X Error: $Msg" -ForegroundColor Red; throw "Instalasi dibatalkan." }
-
-# ── Try npm first ──────────────────────────────────────────────
-
-function Try-NpmInstall {
-  if (Get-Command npm -ErrorAction SilentlyContinue) {
-    Write-Info "npm detected. Installing via npm..."
-    try {
-      & npm install -g "@prastya-dev/jckw-agent"
-      Write-Success "Installed via npm!"
-      return $true
-    } catch {
-      Write-Host "  npm install failed, falling back to binary download..." -ForegroundColor DarkYellow
-      return $false
+    if (-not $Version) {
+        throw "Gagal mendapatkan informasi rilis terbaru dari GitHub."
     }
-  }
-  return $false
-}
 
-# ── Get Latest Version ─────────────────────────────────────────
+    Write-Host "  -> Versi terbaru: $Version" -ForegroundColor Cyan
 
-function Get-LatestVersion {
-  $apiUrl = "https://api.github.com/repos/$Repo/releases/latest"
-  try {
-    $response = Invoke-RestMethod -Uri $apiUrl -Headers @{ "User-Agent" = "jckw-installer" }
-    return $response.tag_name
-  } catch {
-    Write-Err "Could not fetch latest release info. Check your internet connection or Repo name."
-  }
-}
+    # PASTIKAN FILE jckw-win-x64.exe SUDAH ADA DI MENU RELEASES GITHUB
+    $BinaryUrl = "https://github.com/$Repo/releases/download/$Version/jckw-win-x64.exe"
+    $TmpPath   = [System.IO.Path]::GetTempFileName() + ".exe"
 
-# ── Download Binary ────────────────────────────────────────────
-
-function Download-Binary {
-  param($Version)
-
-  # NAMA FILE DISESUAIKAN DENGAN YANG ADA DI GITHUB RELEASE
-  $BinaryUrl = "https://github.com/$Repo/releases/download/$Version/jckw-win-x64.exe"
-  $TmpPath   = [System.IO.Path]::GetTempFileName() + ".exe"
-
-  Write-Info "Downloading jckw $Version for Windows/x64..."
-
-  try {
+    Write-Host "  -> Mengunduh jckw $Version untuk Windows..." -ForegroundColor Cyan
     Invoke-WebRequest -Uri $BinaryUrl -OutFile $TmpPath -UseBasicParsing
-  } catch {
-    Write-Err "Download failed. URL: $BinaryUrl`nError: $_"
-  }
 
-  return $TmpPath
+    # Proses Instalasi Biner
+    if (-not (Test-Path $InstallDir)) {
+        New-Item -ItemType Directory -Path $InstallDir -Force | Out-Null
+    }
+
+    $DestPath = Join-Path $InstallDir $BinName
+    Move-Item -Path $TmpPath -Destination $DestPath -Force
+
+    # Tambahkan ke Environment PATH
+    $CurrentPath = [Environment]::GetEnvironmentVariable("PATH", "User")
+    if ($CurrentPath -notlike "*$InstallDir*") {
+        Write-Host "  -> Menambahkan $InstallDir ke Environment PATH..." -ForegroundColor Cyan
+        [Environment]::SetEnvironmentVariable("PATH", "$CurrentPath;$InstallDir", "User")
+        Write-Host "  v PATH berhasil diupdate." -ForegroundColor Green
+    }
+
+    Write-Host "  v jckw $Version berhasil diinstal ke $DestPath" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "  🎉 INSTALASI SELESAI!" -ForegroundColor Green
+    Write-Host "  Silakan buka terminal PowerShell BARU, lalu ketik:" -ForegroundColor White
+    Write-Host "  jckw" -ForegroundColor Cyan
+    Write-Host ""
+
+} catch {
+    # TANGKAP SEMUA ERROR AGAR TERMINAL BISA DIBACA
+    Write-Host ""
+    Write-Host "  ❌ TERJADI ERROR SAAT INSTALASI:" -ForegroundColor Red
+    Write-Host "  $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host ""
+} finally {
+    # TAHAN TERMINAL AGAR TIDAK LANGSUNG CLOSE
+    Write-Host "========================================" -ForegroundColor DarkGray
+    Read-Host "Tekan [ENTER] untuk menutup jendela ini"
 }
-
-# ── Install Binary ─────────────────────────────────────────────
-
-function Install-Binary {
-  param($TmpPath)
-
-  if (-not (Test-Path $InstallDir)) {
-    New-Item -ItemType Directory -Path $InstallDir -Force | Out-Null
-  }
-
-  $DestPath = Join-Path $InstallDir $BinName
-  Move-Item -Path $TmpPath -Destination $DestPath -Force
-
-  # Add to PATH if not already present
-  $CurrentPath = [Environment]::GetEnvironmentVariable("PATH", "User")
-  if ($CurrentPath -notlike "*$InstallDir*") {
-    Write-Info "Adding $InstallDir to User PATH..."
-    [Environment]::SetEnvironmentVariable("PATH", "$CurrentPath;$InstallDir", "User")
-    Write-Success "PATH updated. Restart your terminal to use jckw."
-  }
-
-  return $DestPath
-}
-
-# ── Main ───────────────────────────────────────────────────────
-
-Write-Banner
-
-if (Try-NpmInstall) {
-  Write-Host ""
-  Write-Host "  Run 'jckw' to get started!" -ForegroundColor Cyan
-  Write-Host "  First run will launch the setup wizard." -ForegroundColor DarkGray
-  Write-Host ""
-  return # Menggunakan return agar PowerShell tidak tertutup
-}
-
-$Version = Get-LatestVersion
-Write-Info "Latest version: $Version"
-
-$TmpPath = Download-Binary -Version $Version
-$DestPath = Install-Binary -TmpPath $TmpPath
-
-Write-Success "jckw $Version installed to $DestPath"
-Write-Host ""
-Write-Host "  Run 'jckw' in a new terminal to get started!" -ForegroundColor Cyan
-Write-Host "  First run will launch the setup wizard." -ForegroundColor DarkGray
-Write-Host ""
