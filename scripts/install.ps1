@@ -1,11 +1,12 @@
 # ============================================================
-# JCKW-AGENT Install Script (Windows — PowerShell)
-# Usage: irm https://raw.githubusercontent.com/prastya-dev/jckw-agent/main/scripts/install.ps1 | iex
+# JCKW-AGENT Install Script (Windows - PowerShell)
+# Usage: irm https://raw.githubusercontent.com/prastya-dev/JCKW_AGENT/main/scripts/install.ps1 | iex
 # ============================================================
 
 $ErrorActionPreference = "Stop"
 
-$Repo    = "prastya-dev/jckw-agent"
+# PASTIKAN NAMA REPO SESUAI (Perhatikan huruf besar/kecilnya jika berpengaruh)
+$Repo    = "prastya-dev/JCKW_AGENT"
 $BinName = "jckw.exe"
 $InstallDir = "$env:LOCALAPPDATA\jckw"
 
@@ -18,7 +19,7 @@ function Write-Banner {
 
 function Write-Info { param($Msg) Write-Host "  -> $Msg" -ForegroundColor Cyan }
 function Write-Success { param($Msg) Write-Host "  v $Msg" -ForegroundColor Green }
-function Write-Err { param($Msg) Write-Host "  X Error: $Msg" -ForegroundColor Red; exit 1 }
+function Write-Err { param($Msg) Write-Host "  X Error: $Msg" -ForegroundColor Red; throw "Instalasi dibatalkan." }
 
 # ── Try npm first ──────────────────────────────────────────────
 
@@ -45,7 +46,7 @@ function Get-LatestVersion {
     $response = Invoke-RestMethod -Uri $apiUrl -Headers @{ "User-Agent" = "jckw-installer" }
     return $response.tag_name
   } catch {
-    Write-Err "Could not fetch latest release info. Check your internet connection."
+    Write-Err "Could not fetch latest release info. Check your internet connection or Repo name."
   }
 }
 
@@ -54,7 +55,8 @@ function Get-LatestVersion {
 function Download-Binary {
   param($Version)
 
-  $BinaryUrl = "https://github.com/$Repo/releases/download/$Version/jckw-windows-x64.exe"
+  # NAMA FILE DISESUAIKAN DENGAN YANG ADA DI GITHUB RELEASE
+  $BinaryUrl = "https://github.com/$Repo/releases/download/$Version/jckw-win-x64.exe"
   $TmpPath   = [System.IO.Path]::GetTempFileName() + ".exe"
 
   Write-Info "Downloading jckw $Version for Windows/x64..."
@@ -100,7 +102,7 @@ if (Try-NpmInstall) {
   Write-Host "  Run 'jckw' to get started!" -ForegroundColor Cyan
   Write-Host "  First run will launch the setup wizard." -ForegroundColor DarkGray
   Write-Host ""
-  exit 0
+  return # Menggunakan return agar PowerShell tidak tertutup
 }
 
 $Version = Get-LatestVersion
