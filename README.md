@@ -99,10 +99,3 @@ Saat berada di dalam aplikasi `jckw`, Anda dapat menggunakan perintah garis miri
 
 ---
 
-## Lisensi
-
-Aplikasi ini dilindungi di bawah lisensi [MIT](https://www.google.com/search?q=LICENSE).
-
-```
-
-```
