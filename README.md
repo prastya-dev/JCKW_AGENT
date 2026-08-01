@@ -1,9 +1,3 @@
-Berikut adalah isi lengkap file **`README.md`** (versi pengguna) yang siap langsung kamu salin dan tempel (*copy-paste*) ke file `README.md` di root proyekmu:
-
-```markdown
-# JCKW-AGENT
-
-```
 
 ```text
  ┏┓┏━╸╻┏ ╻ ╻   ┏━┓┏━╸┏━╸┏┓╻╺┳╸
