@@ -1,0 +1,48 @@
+{
+  "name": "@prastya-dev/jckw-agent",
+  "version": "1.0.0",
+  "description": "JCKW-AGENT: AI CLI Terminal Interface by prastya-dev, powered by Google Antigravity",
+  "main": "dist/index.js",
+  "bin": {
+    "jckw": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/index.ts",
+    "start": "node dist/index.js",
+    "clean": "rm -rf dist binaries",
+    "pkg:linux": "pkg dist/index.js --targets node18-linux-x64 --output binaries/jckw-linux --compress GZip",
+    "pkg:macos": "pkg dist/index.js --targets node18-macos-x64 --output binaries/jckw-macos --compress GZip",
+    "pkg:win": "pkg dist/index.js --targets node18-win-x64 --output binaries/jckw-win.exe --compress GZip",
+    "pkg:all": "npm run build && npm run pkg:linux && npm run pkg:macos && npm run pkg:win"
+  },
+  "keywords": ["ai", "cli", "terminal", "gemini", "jckw", "tui"],
+  "author": "prastya-dev",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/prastya-dev/jckw-agent.git"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "open": "8.4.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.11.0",
+    "ts-node": "^10.9.2",
+    "@yao-pkg/pkg": "^5.11.5"
+  },
+  "pkg": {
+    "scripts": "dist/**/*.js",
+    "assets": [],
+    "targets": [
+      "node18-linux-x64",
+      "node18-macos-x64",
+      "node18-win-x64"
+    ],
+    "outputPath": "binaries"
+  }
+}
