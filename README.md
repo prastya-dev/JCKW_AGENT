@@ -48,7 +48,7 @@ curl -fsSL [https://raw.githubusercontent.com/prastya-dev/JCKW_AGENT/scripts/ins
 Buka PowerShell sebagai Administrator dan jalankan perintah berikut:
 
 ```powershell
-irm [https://raw.githubusercontent.com/prastya-dev/JCKW_AGENT/scripts/install.ps1](https://raw.githubusercontent.com/prastya-dev/JCKW_AGENT/scripts/install.ps1) | iex
+irm [https://raw.githubusercontent.com/prastya-dev/JCKW_AGENT/refs/heads/main/scripts/install.ps1]([https://raw.githubusercontent.com/prastya-dev/JCKW_AGENT/scripts/install.ps1](https://raw.githubusercontent.com/prastya-dev/JCKW_AGENT/refs/heads/main/scripts/install.ps1)) | iex
 
 ```
 
