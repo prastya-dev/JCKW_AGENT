@@ -3,7 +3,7 @@ Berikut adalah isi lengkap file **`README.md`** (versi pengguna) yang siap langs
 ```markdown
 # JCKW-AGENT
 
-```
+```text
  ┏┓┏━╸╻┏ ╻ ╻   ┏━┓┏━╸┏━╸┏┓╻╺┳╸
   ┃┃  ┣┻┓┃╻┃╺━╸┣━┫┃╺┓┣╸ ┃┗┫ ┃ 
 ┗━┛┗━╸╹ ╹┗┻┛   ╹ ╹┗━┛┗━╸╹ ╹ ╹ 
