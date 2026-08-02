@@ -1,101 +1,122 @@
+<div align="center">
 
 ```text
  ┏┓┏━╸╻┏ ╻ ╻   ┏━┓┏━╸┏━╸┏┓╻╺┳╸
   ┃┃  ┣┻┓┃╻┃╺━╸┣━┫┃╺┓┣╸ ┃┗┫ ┃ 
 ┗━┛┗━╸╹ ╹┗┻┛   ╹ ╹┗━┛┗━╸╹ ╹ ╹ 
-
 ```
 
-> **JCKW-AGENT** — AI CLI Terminal Interface powered by Google Antigravity, developed by [prastya-dev](https://github.com/prastya-dev).
+**Next-Gen AI CLI Terminal Interface**
 
-JCKW-Agent adalah asisten AI berbasis terminal yang memberikan akses langsung ke berbagai model AI canggih (termasuk Claude dan Gemini) melalui integrasi 1st-party provider, lengkap dengan fitur eksekusi perintah terminal otomatis.
+[![npm version](https://badge.fury.io/js/@prastya-dev%2Fjckw-agent.svg)](https://badge.fury.io/js/@prastya-dev%2Fjckw-agent)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Node.js Version](https://img.shields.io/node/v/@prastya-dev/jckw-agent)](https://nodejs.org/)
 
----
+JCKW-Agent is a revolutionary terminal-based AI assistant designed specifically for developers and power users. Fully integrated with advanced models from Google Antigravity, JCKW-Agent brings the power of next-generation coding and AI assistance right to your fingertips in the terminal.
 
-## Fitur Utama
+[Key Features](#-key-features) • [Installation](#-installation) • [Usage](#-usage-guide) • [Contributors](#-contributors)
 
-* **Akses Model AI Luas:** Mendukung perpindahan model AI secara dinamis seperti Claude dan Gemini.
-* **Dual Operational Mode:**
-* **Chat Mode:** Berkomunikasi dan berkonsultasi mengenai pemrograman atau topik umum.
-* **Exec Mode:** Meminta AI membuat dan mengeksekusi perintah terminal secara langsung dengan sistem konfirmasi keamanan.
-
-
-* **Otentikasi Otomatis:** Sistem login OAuth2 yang terintegrasi secara aman.
-* **Antarmuka TUI Interaktif:** Menu navigasi terminal yang bersih, responsif, dan mudah digunakan.
-* **Tanpa Dependensi:** Tersedia versi biner mandiri yang dapat dijalankan tanpa perlu menginstal Node.js.
+</div>
 
 ---
 
-## Cara Instalasi
+## ✨ Key Features
 
-Pilih salah satu metode instalasi di bawah ini.
+- **🧠 Advanced AI Models Access:** Seamlessly supports cutting-edge models (Claude, Gemini, etc.) dynamically through Google's infrastructure.
+- **🔄 Dual Operational Modes:**
+  - `CHAT MODE` : An interactive discussion companion for coding, debugging, or general Q&A.
+  - `EXEC MODE` : Command the AI to autonomously compose and execute terminal commands (equipped with a security confirmation system).
+- **🔒 Smart Authentication (OAuth2):** Secure integrated login system via browser.
+- **🎨 Modern TUI (Terminal User Interface):** A beautiful, intuitive, and responsive terminal experience featuring seamless keyboard navigation.
+- **🚀 Zero Dependencies:** Available as a standalone binary (Linux, macOS, Windows) requiring absolutely no Node.js installation!
+- **⚡ Smart OS Integration:** "Run JCKW Here" feature for lightning-fast access via Windows Context Menu.
 
-### Metode 1: Instalasi Otomatis (Direkomendasikan)
+---
 
-Metode ini mengunduh file biner mandiri tanpa memerlukan Node.js di komputer Anda.
+## 🚀 Installation
 
-#### Linux / macOS
+Choose the method that best fits your workflow:
 
-Buka terminal dan jalankan perintah berikut:
+### Method 1: Automatic Installation (Standalone Binary)
+> [!TIP]
+> This method is highly recommended if you prefer a hassle-free setup without installing Node.js.
 
+#### 🐧 Linux / 🍎 macOS
+Open your terminal and run the following installation script:
 ```bash
-curl -fsSL [https://raw.githubusercontent.com/prastya-dev/JCKW_AGENT/scripts/install.sh](https://raw.githubusercontent.com/prastya-dev/JCKW_AGENT/scripts/install.sh) | bash
-
+curl -fsSL https://raw.githubusercontent.com/prastya-dev/JCKW_AGENT/main/scripts/install.sh | bash
 ```
 
-#### Windows
-
-Buka PowerShell sebagai Administrator dan jalankan perintah berikut:
-
+#### 🪟 Windows (Powershell)
+Open PowerShell **as Administrator**, and run:
 ```powershell
 irm https://raw.githubusercontent.com/prastya-dev/JCKW_AGENT/main/scripts/install.ps1 | iex
-
 ```
+> [!NOTE]
+> The Windows installation will automatically add a **"Run JCKW Here"** option when you right-click in File Explorer.
 
 ---
 
-### Metode 2: Instalasi via NPM
+### Method 2: Installation via NPM
+> [!IMPORTANT]
+> Ensure you have **Node.js (version 18 or higher)** installed on your machine.
 
-Jika Anda sudah menginstal Node.js (v18 atau yang lebih baru), Anda dapat menginstalnya secara global melalui NPM:
-
+Open your terminal and run:
 ```bash
 npm install -g @prastya-dev/jckw-agent
-
 ```
 
 ---
 
-## Cara Penggunaan
+## 📖 Usage Guide
 
-Setelah proses instalasi selesai, buka terminal baru dan ketik:
+Starting JCKW-Agent is as easy as calling its name. Open a new terminal and type:
 
 ```bash
 jckw
+```
+*(Note: Upon first launch, you will be guided through a simple Google account login process).*
 
+### Launch Flags
+You can instantly jump into a specific mode by appending flags:
+- `jckw -c` → Enter **Chat Mode**
+- `jckw -e` → Enter **Exec Mode**
+- `jckw -q` → Enter **Quiz Mode**
+- `jckw --update` → Check and update to the latest release version automatically.
+
+### Slash Commands
+Type these commands directly inside the application's prompt to access various features:
+
+| Command | Description |
+| :--- | :--- |
+| `/model` | Open an interactive menu to change the active AI model. |
+| `/chat` | Switch to **Chat Mode** (For casual discussion & coding). |
+| `/exec` | Switch to **Exec Mode** (AI will create & execute terminal commands). |
+| `/quiz` | Switch to **Quiz Mode** (AI answers very briefly & to the point). |
+| `/cd <path>`| Change the active working directory from within the application. |
+| `/clear` | Clear the terminal screen and reset the session history. |
+| `/token` | View information regarding your AI token usage limits and quota. |
+| `/help` | Display the comprehensive help menu. |
+| `/exit` | Exit the application. |
+
+---
+
+## 🗑️ Uninstall
+
+If you wish to completely remove the application (including the Windows Registry Context Menu and secret session configurations):
+
+Run the following command in any terminal:
+```bash
+jckw --uninstall
 ```
 
-Saat pertama kali dijalankan, aplikasi akan membimbing Anda melalui proses otentikasi awal.
-
-### Perintah dalam Aplikasi (Slash Commands)
-
-Saat berada di dalam aplikasi `jckw`, Anda dapat menggunakan perintah garis miring berikut:
-
-| Perintah | Fungsi |
-| --- | --- |
-| `/model` | Membuka menu interaktif untuk memilih model AI. |
-| `/chat` | Mengubah mode ke Chat Mode (mode diskusi). |
-| `/exec` | Mengubah mode ke Exec Mode (mode eksekusi perintah terminal). |
-| `/clear` | Membersihkan layar terminal dan riwayat percakapan sesi ini. |
-| `/cd` | Mengubah direktori kerja terminal aktif. |
-| `/quiz` | Memulai mode kuis interaktif seputar pemrograman. |
-| `/help` | Menampilkan daftar bantuan dan informasi penggunaan. |
-| `/exit` | Keluar dari aplikasi JCKW-Agent. |
-
 ---
 
-## Kontributor
+## 👥 Contributors
 
-* **[prastya-dev](https://github.com/prastya-dev)** — Creator & Lead Developer
+Crafted with ❤️ by **[prastya-dev](https://github.com/prastya-dev)** — _Creator & Lead Developer_.
 
 ---
-
+<div align="center">
+  <i>JCKW-Agent is an open-source software licensed under MIT.</i>
+</div>

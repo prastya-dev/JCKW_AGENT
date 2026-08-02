@@ -16,6 +16,7 @@ import { runWizard, runRelogin, runUninstall } from './auth/wizard';
 import { handleSlashCommand } from './commands/slash';
 import { sendMessage } from './api/client';
 import { APP_VERSION } from './core/constants';
+import { runUpdate } from './core/updater';
 
 // ── Graceful Shutdown ──────────────────────────────────────
 
@@ -123,6 +124,12 @@ async function main(): Promise<void> {
     process.exit(0);
   }
 
+  // ─ --update ─
+  if (args.includes('--update')) {
+    await runUpdate(APP_VERSION);
+    process.exit(0);
+  }
+
   // ─ --config / --wizard (force re-login) ─
   if (args.includes('--config') || args.includes('--wizard')) {
     applyTheme('chat');
@@ -144,16 +151,22 @@ async function main(): Promise<void> {
   // Load configuration
   const config = readConfig();
 
+  // Handle direct mode flags
+  let overrideMode = config.settings.default_mode;
+  if (args.includes('-c')) overrideMode = 'chat';
+  else if (args.includes('-e')) overrideMode = 'exec';
+  else if (args.includes('-q')) overrideMode = 'quiz';
+
   // Initialize application state
   stateManager.update({
     selectedModel: config.settings.default_model,
-    activeMode: config.settings.default_mode,
+    activeMode: overrideMode,
     config,
     currentDir: process.cwd(),
   });
 
-  // Apply initial theme based on saved mode
-  applyTheme(config.settings.default_mode);
+  // Apply initial theme based on saved/overridden mode
+  applyTheme(overrideMode);
 
   // Ensure valid auth token
   try {

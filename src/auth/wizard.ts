@@ -1,6 +1,6 @@
 import { initDefaultConfig, writeConfig, readConfig, getConfigDir } from '../core/config';
 import { createOAuthSession, openBrowser, fetchUserProjects } from './oauth';
-import { getTheme } from '../ui/theme';
+import { getTheme, A } from '../ui/theme';
 import { showModelSelector } from '../ui/modelselector';
 import { fetchModels } from '../api/client';
 import { DEFAULT_MODEL } from '../core/constants';
@@ -20,25 +20,6 @@ import { DEFAULT_MODEL } from '../core/constants';
 //  │  http://localhost:8085/callback?... > _  │  ← input
 //  └──────────────────────────────────────────┘
 // ============================================================
-
-// ── ANSI helpers ───────────────────────────────────────────
-
-const A = {
-  reset:      '\x1b[0m',
-  bold:       '\x1b[1m',
-  dim:        '\x1b[2m',
-  cyan:       '\x1b[96m',
-  blue:       '\x1b[94m',
-  green:      '\x1b[92m',
-  red:        '\x1b[91m',
-  white:      '\x1b[97m',
-  gray:       '\x1b[90m',
-  saveCursor: '\x1b7',
-  restCursor: '\x1b8',
-  up: (n: number) => `\x1b[${n}A`,
-  col: (c: number) => `\x1b[${c}G`,
-  clearLine:  '\x1b[2K',
-};
 
 const SPINNER_FRAMES = ['⠋','⠙','⠹','⠸','⠼','⠴','⠦','⠧','⠇','⠏'];
 
@@ -191,6 +172,12 @@ function showSuccessScreen(name: string, email: string): void {
   const col = process.stdout.columns || 80;
   const sep = `${t.separator}${'─'.repeat(col)}${t.reset}`;
 
+  let isEn = false;
+  try {
+    const { readConfig } = require('../core/config');
+    isEn = readConfig().settings.language === 'en';
+  } catch {}
+
   process.stdout.write('\x1b[2J\x1b[H'); // clear screen
 
  const logo = [
@@ -203,9 +190,9 @@ function showSuccessScreen(name: string, email: string): void {
   logo.forEach(l => console.log(l));
   console.log('');
   console.log(sep);
-  console.log(`  ${A.green}✓ Login berhasil!${A.reset}`);
-  if (name)  console.log(`  ${A.gray}Halo,${A.reset} ${A.bold}${A.white}${name}${A.reset}`);
-  if (email) console.log(`  ${A.gray}Akun :${A.reset} ${A.white}${email}${A.reset}`);
+  console.log(`  ${A.green}✓ ${isEn ? 'Login successful!' : 'Login berhasil!'}${A.reset}`);
+  if (name)  console.log(`  ${A.gray}${isEn ? 'Hello,' : 'Halo,'}${A.reset} ${A.bold}${A.white}${name}${A.reset}`);
+  if (email) console.log(`  ${A.gray}${isEn ? 'Account :' : 'Akun :'}${A.reset} ${A.white}${email}${A.reset}`);
  
   console.log(sep + '\n');
 }
@@ -216,6 +203,18 @@ export async function runWizard(): Promise<void> {
   const t   = getTheme();
   const col = process.stdout.columns || 80;
   const sep = `${t.separator}${'─'.repeat(col)}${t.reset}`;
+
+  // Pastikan config dasar ada
+  let cfg;
+  try { cfg = readConfig(); } catch { cfg = initDefaultConfig(); }
+
+  // 1. Language Selection
+  process.stdout.write('\x1b[2J\x1b[H');
+  const langChosen = await showModelSelector(['English', 'Bahasa Indonesia'], cfg.settings.language === 'en' ? 'English' : 'Bahasa Indonesia');
+  cfg.settings.language = langChosen === 'English' ? 'en' : 'id';
+  writeConfig(cfg);
+  
+  const isEn = cfg.settings.language === 'en';
 
   // Splash
   process.stdout.write('\x1b[2J\x1b[H');
@@ -229,17 +228,13 @@ export async function runWizard(): Promise<void> {
   logo.forEach(l => console.log(l));
   console.log('');
   console.log(sep);
-  console.log(`  ${A.white}Masuk dengan akun Google untuk melanjutkan${A.reset}`);
+  console.log(`  ${A.white}${isEn ? 'Sign in with your Google account to continue' : 'Masuk dengan akun Google untuk melanjutkan'}${A.reset}`);
   console.log(sep);
   console.log(`
-  ${A.gray}Lanjutkan ke Google →${A.reset} Browser terbuka otomatis
-  ${A.gray}Pilih akun Google Anda → Klik "Izinkan"${A.reset}
+  ${A.gray}${isEn ? 'Continue to Google → Browser opens automatically' : 'Lanjutkan ke Google → Browser terbuka otomatis'}
+  ${A.gray}${isEn ? 'Select your Google account → Click "Allow"' : 'Pilih akun Google Anda → Klik "Izinkan"'}${A.reset}
 
 `);
-
-  // Pastikan config dasar ada
-  let cfg;
-  try { cfg = readConfig(); } catch { cfg = initDefaultConfig(); }
 
   // Buat OAuth session (server + URL sudah siap)
   let session;
@@ -247,12 +242,29 @@ export async function runWizard(): Promise<void> {
     session = await createOAuthSession();
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
-    console.error(`\n  ${A.red}✗ Gagal mempersiapkan OAuth: ${msg}${A.reset}\n`);
+    console.error(`\n  ${A.red}✗ ${isEn ? 'Failed to prepare OAuth' : 'Gagal mempersiapkan OAuth'}: ${msg}${A.reset}\n`);
     process.exit(1);
   }
 
   // Buka browser
   await openBrowser(session.authUrl);
+
+  // 1.5 Auto-Install Windows Context Menu (Bagi pengguna NPM / Binary)
+  if (process.platform === 'win32') {
+    try {
+      const { execSync } = require('child_process');
+      const regBg = 'HKCU\\Software\\Classes\\Directory\\Background\\shell\\JCKW';
+      const regDir = 'HKCU\\Software\\Classes\\Directory\\shell\\JCKW';
+      
+      // Tambahkan registry untuk Background & Directory
+      execSync(`reg add "${regBg}" /ve /d "Run JCKW Here" /f > nul 2>&1`, { stdio: 'ignore' });
+      execSync(`reg add "${regBg}\\command" /ve /d "cmd.exe /c start /d \\"%V\\" jckw" /f > nul 2>&1`, { stdio: 'ignore' });
+      execSync(`reg add "${regDir}" /ve /d "Run JCKW Here" /f > nul 2>&1`, { stdio: 'ignore' });
+      execSync(`reg add "${regDir}\\command" /ve /d "cmd.exe /c start /d \\"%1\\" jckw" /f > nul 2>&1`, { stdio: 'ignore' });
+    } catch (e) {
+      // Abaikan jika gagal
+    }
+  }
 
   // Tampilkan dialog "Connect Antigravity" + tunggu code
   let code: string;
@@ -265,34 +277,34 @@ export async function runWizard(): Promise<void> {
   } catch (err: unknown) {
     session.cancel();
     const msg = err instanceof Error ? err.message : String(err);
-    console.error(`\n  ${A.red}✗ Login gagal: ${msg}${A.reset}\n`);
+    console.error(`\n  ${A.red}✗ ${isEn ? 'Login failed' : 'Login gagal'}: ${msg}${A.reset}\n`);
     process.exit(1);
   }
 
   // Tukar code → tokens
-  process.stdout.write(`\n  ${A.gray}Mengambil token...${A.reset}\n`);
+  process.stdout.write(`\n  ${A.gray}${isEn ? 'Fetching tokens...' : 'Mengambil token...'}${A.reset}\n`);
   let tokens;
   try {
     tokens = await session.exchangeCode(code);
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
-    console.error(`\n  ${A.red}✗ Token exchange gagal: ${msg}${A.reset}\n`);
+    console.error(`\n  ${A.red}✗ ${isEn ? 'Token exchange failed' : 'Token exchange gagal'}: ${msg}${A.reset}\n`);
     process.exit(1);
   }
 
   // Ambil project otomatis
-  process.stdout.write(`  ${A.gray}Mencari Google Cloud Project aktif...${A.reset}\n`);
+  process.stdout.write(`  ${A.gray}${isEn ? 'Searching for active Google Cloud Project...' : 'Mencari Google Cloud Project aktif...'}${A.reset}\n`);
   const projects = await fetchUserProjects(tokens.access_token);
   
   if (projects.length > 0) {
     cfg.environment.project_id = projects[0];
-    process.stdout.write(`  ${A.green}✓ Menggunakan Project: ${A.white}${projects[0]}${A.reset}\n`);
+    process.stdout.write(`  ${A.green}✓ ${isEn ? 'Using Project' : 'Menggunakan Project'}: ${A.white}${projects[0]}${A.reset}\n`);
     if (projects.length > 1) {
-      process.stdout.write(`    ${A.gray}(Anda memiliki ${projects.length} project. Edit ~/.config/jckw/config.json untuk mengubahnya)${A.reset}\n`);
+      process.stdout.write(`    ${A.gray}(${isEn ? `You have ${projects.length} projects. Edit ~/.config/jckw/config.json to change it` : `Anda memiliki ${projects.length} project. Edit ~/.config/jckw/config.json untuk mengubahnya`})${A.reset}\n`);
     }
   } else {
-    process.stdout.write(`  ${A.red}⚠ Peringatan: Tidak ada Google Cloud Project ditemukan!${A.reset}\n`);
-    process.stdout.write(`    ${A.gray}Buat project di console.cloud.google.com agar bisa memanggil AI.${A.reset}\n`);
+    process.stdout.write(`  ${A.red}⚠ ${isEn ? 'Warning: No Google Cloud Project found!' : 'Peringatan: Tidak ada Google Cloud Project ditemukan!'}${A.reset}\n`);
+    process.stdout.write(`    ${A.gray}${isEn ? 'Create a project at console.cloud.google.com to call the AI.' : 'Buat project di console.cloud.google.com agar bisa memanggil AI.'}${A.reset}\n`);
   }
 
   // Simpan tokens
@@ -309,7 +321,7 @@ export async function runWizard(): Promise<void> {
   showSuccessScreen(tokens.user_name, tokens.user_email);
 
   // Model Selection
-  process.stdout.write(`\n  ${A.gray}Mengambil daftar model AI...${A.reset}\n`);
+  process.stdout.write(`\n  ${A.gray}${isEn ? 'Fetching AI models list...' : 'Mengambil daftar model AI...'}${A.reset}\n`);
   let models = [DEFAULT_MODEL]; // fallback
   try {
     models = await fetchModels();
@@ -321,9 +333,9 @@ export async function runWizard(): Promise<void> {
   if (chosen) {
     cfg.settings.default_model = chosen;
     writeConfig(cfg);
-    process.stdout.write(`\n  ${A.green}✓ Model default disimpan: ${A.white}${chosen}${A.reset}\n\n`);
+    process.stdout.write(`\n  ${A.green}✓ ${isEn ? 'Default model saved' : 'Model default disimpan'}: ${A.white}${chosen}${A.reset}\n\n`);
   } else {
-    process.stdout.write(`\n  ${A.gray}Menggunakan model bawaan: ${A.white}${DEFAULT_MODEL}${A.reset}\n\n`);
+    process.stdout.write(`\n  ${A.gray}${isEn ? 'Using default model' : 'Menggunakan model bawaan'}: ${A.white}${DEFAULT_MODEL}${A.reset}\n\n`);
   }
 }
 
@@ -345,23 +357,72 @@ export async function runUninstall(): Promise<void> {
   const col = process.stdout.columns || 80;
   const sep = `${t.separator}${'─'.repeat(col)}${t.reset}`;
   const { deleteConfig, getConfigDir: gcd } = await import('../core/config');
+  const fs = await import('fs');
+  const { execSync } = await import('child_process');
+
+  let isEn = false;
+  try {
+    const { readConfig } = await import('../core/config');
+    isEn = readConfig().settings.language === 'en';
+  } catch {}
 
   console.log('\n' + sep);
   console.log(`  ${A.cyan}Antigravity — JCKW-AGENT Uninstall${A.reset}`);
   console.log(sep);
+  
+  // 1. Delete Config
   try {
     deleteConfig();
-    console.log(`\n  ${A.green}✓ Sesi dihapus: ${gcd()}${A.reset}`);
+    console.log(`\n  ${A.green}✓ ${isEn ? 'Session deleted:' : 'Sesi dihapus:'} ${gcd()}${A.reset}`);
   } catch {
-    console.log(`\n  ${A.gray}⚠ Tidak ada data di: ${gcd()}${A.reset}`);
+    console.log(`\n  ${A.gray}⚠ ${isEn ? 'No config found at:' : 'Tidak ada data konfigurasi di:'} ${gcd()}${A.reset}`);
   }
-  console.log(`
-  ${A.gray}Hapus binary:${A.reset}
-  ${A.white}  Linux/macOS → ${A.cyan}sudo rm /usr/local/bin/jckw${A.reset}
-  ${A.white}  Windows     → ${A.cyan}hapus jckw.exe dari PATH${A.reset}
 
-  ${A.gray}Hapus npm:${A.reset}
-  ${A.white}  ${A.cyan}npm uninstall -g @prastya-dev/jckw-agent${A.reset}
-`);
+  // 2. Uninstall logic
+  // @ts-ignore
+  const isNpm = process.execPath.includes('node') || !process.pkg;
+  
+  if (isNpm) {
+    console.log(`\n  ${A.gray}${isEn ? 'Removing NPM package...' : 'Menghapus dari NPM...'}${A.reset}`);
+    try {
+      execSync('npm uninstall -g @prastya-dev/jckw-agent', { stdio: 'ignore' });
+      console.log(`  ${A.green}✓ ${isEn ? 'NPM package removed.' : 'Paket NPM berhasil dihapus.'}${A.reset}`);
+    } catch (err) {
+      console.log(`  ${A.red}✗ ${isEn ? 'Failed to remove NPM package automatically.' : 'Gagal menghapus paket NPM otomatis.'}${A.reset}`);
+      console.log(`  ${isEn ? 'Please run:' : 'Silakan jalankan:'} ${A.cyan}npm uninstall -g @prastya-dev/jckw-agent${A.reset}`);
+    }
+    
+    if (process.platform === 'win32') {
+      try {
+        const regBg = 'HKCU\\Software\\Classes\\Directory\\Background\\shell\\JCKW';
+        const regDir = 'HKCU\\Software\\Classes\\Directory\\shell\\JCKW';
+        execSync(`reg delete "${regBg}" /f > nul 2>&1`, { stdio: 'ignore' });
+        execSync(`reg delete "${regDir}" /f > nul 2>&1`, { stdio: 'ignore' });
+      } catch {}
+    }
+  } else {
+    // Compiled binary
+    const destPath = process.execPath;
+    console.log(`\n  ${A.gray}${isEn ? 'Removing standalone binary...' : 'Menghapus binary mandiri...'}${A.reset}`);
+    try {
+      if (process.platform === 'win32') {
+        // Windows cannot delete running executable directly. We write a small cmd to delete it after exit.
+        const cmdPath = destPath + '.del.cmd';
+        const regBg = 'HKCU\\Software\\Classes\\Directory\\Background\\shell\\JCKW';
+        const regDir = 'HKCU\\Software\\Classes\\Directory\\shell\\JCKW';
+        fs.writeFileSync(cmdPath, `ping 127.0.0.1 -n 3 > nul\nreg delete "${regBg}" /f > nul 2>&1\nreg delete "${regDir}" /f > nul 2>&1\ndel "${destPath}"\ndel "%~f0"`);
+        const { spawn } = await import('child_process');
+        spawn('cmd.exe', ['/c', cmdPath], { detached: true, stdio: 'ignore' }).unref();
+        console.log(`  ${A.green}✓ ${isEn ? 'Binary and Context Menu will be deleted on exit.' : 'Binary dan Context Menu akan dihapus otomatis setelah aplikasi tertutup.'}${A.reset}`);
+      } else {
+        fs.unlinkSync(destPath);
+        console.log(`  ${A.green}✓ ${isEn ? 'Binary removed from:' : 'Binary berhasil dihapus dari:'} ${destPath}${A.reset}`);
+      }
+    } catch (err) {
+      console.log(`  ${A.red}✗ ${isEn ? 'Failed to remove binary (may need sudo/Admin).' : 'Gagal menghapus binary (mungkin butuh akses sudo/Admin).'}${A.reset}`);
+      console.log(`  ${isEn ? 'Please delete manually:' : 'Silakan hapus manual file:'} ${A.cyan}${destPath}${A.reset}`);
+    }
+  }
+
   console.log(sep + '\n');
 }

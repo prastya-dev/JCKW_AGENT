@@ -2,8 +2,10 @@
 // JCKW-AGENT — Global Constants
 // ============================================================
 
+import pkg from '../../package.json';
+
 export const APP_NAME    = 'JCKW-AGENT';
-export const APP_VERSION = '1.0.0';
+export const APP_VERSION = pkg.version || '1.0.0';
 export const NPM_PACKAGE = '@prastya-dev/jckw-agent';
 export const DEVELOPER   = 'prastya-dev';
 
@@ -66,6 +68,7 @@ export const DEFAULT_SETTINGS = {
   default_mode:             'chat' as 'chat' | 'exec' | 'quiz',
   confirm_danger_commands:  true,
   max_history_length:       50,
+  language:                 'id' as 'id' | 'en',
 };
 
 // ── Typewriter ─────────────────────────────────────────────

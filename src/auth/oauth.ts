@@ -305,7 +305,7 @@ export async function runOAuthFlow(): Promise<OAuthTokens> {
 
 function callbackHtml(ok: boolean, errMsg = ''): string {
   if (ok) return `<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8">
-<title>Antigravity — Login Berhasil</title>
+<title>JCKW — Login Success</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{min-height:100vh;background:#080c10;display:flex;flex-direction:column;
@@ -316,25 +316,19 @@ function callbackHtml(ok: boolean, errMsg = ''): string {
     font-size:28px;box-shadow:0 0 32px #00d4ff44}
   .logo-name{font-size:1.1rem;font-weight:700;color:#e0f0ff;letter-spacing:3px;text-transform:uppercase}
   .card{background:#0d1520;border:1px solid #1a3a5c;border-radius:16px;padding:40px 48px;
-    text-align:center;max-width:420px;width:100%;box-shadow:0 8px 48px #00000060}
+    text-align:center;max-width:460px;width:100%;box-shadow:0 8px 48px #00000060}
   .check{width:64px;height:64px;background:linear-gradient(135deg,#00ff88,#00d4aa);
     border-radius:50%;display:flex;align-items:center;justify-content:center;
     margin:0 auto 24px;font-size:28px;color:#003322;box-shadow:0 0 32px #00ff8844}
   h1{color:#e0f0ff;font-size:1.4rem;font-weight:600;margin-bottom:12px}
-  p{color:#6a8aaa;font-size:.9rem;line-height:1.6;margin-bottom:24px}
+  p{color:#6a8aaa;font-size:1rem;line-height:1.6;margin-bottom:24px}
   .chip{display:inline-flex;align-items:center;gap:8px;background:#162030;
     border:1px solid #1e3a5a;border-radius:24px;padding:8px 16px;color:#8ab4d8;font-size:.82rem}
   .dot{width:8px;height:8px;background:#00ff88;border-radius:50%}
   footer{color:#2a4060;font-size:.72rem;letter-spacing:2px;text-transform:uppercase}
 </style></head><body>
-<div class="logo"><div class="logo-icon">⚡</div><div class="logo-name">Antigravity</div></div>
-<div class="card">
-  <div class="check">✓</div>
-  <h1>Login Berhasil!</h1>
-  <p>Akun Google Anda berhasil terhubung ke Antigravity.<br>Tab ini akan tertutup otomatis.</p>
-  <div class="chip"><div class="dot"></div>Sesi aktif</div>
-</div>
-<footer>Antigravity • prastya-dev • v1.0.0</footer>
+<div class="card"> <div class="check">✓</div><h1>Login Success!</h1> <p> Please return to the terminal wizard.<div class="chip"><div class="dot"></div>Sesi aktif</div>
+</div><footer>JCKW • prastya-dev</footer>
 <script>setTimeout(()=>{try{window.close()}catch(e){}},3000)</script>
 </body></html>`;
 

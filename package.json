@@ -3,6 +3,9 @@
   "version": "1.0.1",
   "description": "JCKW-AGENT: AI CLI Terminal Interface by prastya-dev, powered by Google Antigravity",
   "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "bin": {
     "jckw": "dist/index.js"
   },

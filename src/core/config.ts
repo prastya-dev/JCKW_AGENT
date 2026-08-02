@@ -25,6 +25,7 @@ export interface SettingsConfig {
   default_mode:            'chat' | 'exec' | 'quiz';
   confirm_danger_commands: boolean;
   max_history_length:      number;
+  language:                'id' | 'en';
 }
 
 export interface EnvironmentConfig {

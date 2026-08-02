@@ -2,13 +2,13 @@ import { getTheme, separator } from './theme';
 
 // ============================================================
 // JCKW-AGENT — ASCII Banner Renderer
-// ============================================================
+import { APP_VERSION } from '../core/constants';
 
 const ASCII_BANNER = `
  ┏┓┏━╸╻┏ ╻ ╻   ┏━┓┏━╸┏━╸┏┓╻╺┳╸
   ┃┃  ┣┻┓┃╻┃╺━╸┣━┫┃╺┓┣╸ ┃┗┫ ┃ 
 ┗━┛┗━╸╹ ╹┗┻┛   ╹ ╹┗━┛┗━╸╹ ╹ ╹ 
-                 AI CLI [ BETA VERSION ]
+                  AI CLI [ BETA VERSION v${APP_VERSION} ]
 `;
 
 /** Renders the full banner with current mode's accent colour */

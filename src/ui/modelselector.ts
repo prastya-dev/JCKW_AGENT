@@ -15,9 +15,12 @@ export function showModelSelector(models: string[], currentModel: string): Promi
     const listLen = models.length;
 
     function renderList() {
-      // Move cursor up by (listLen + 4) to overwrite previous render
+      const readline = require('readline');
+      
+      // Move cursor up and clear down to prevent flickering/leftover text
       if (rendered) {
-        process.stdout.write(`\x1b[${listLen + 4}A`);
+        readline.moveCursor(process.stdout, 0, -(listLen + 4));
+        readline.clearScreenDown(process.stdout);
       }
 
       process.stdout.write(sep + '\n');

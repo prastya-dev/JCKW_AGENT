@@ -122,9 +122,24 @@ try_npm_install() {
 main() {
   banner
 
+  echo -e "${GRAY}  Select Language / Pilih Bahasa:${RESET}"
+  echo -e "${GRAY}  1. English${RESET}"
+  echo -e "${GRAY}  2. Bahasa Indonesia${RESET}"
+  read -p "  [1/2]: " LANG_CHOICE
+  
+  if [ "$LANG_CHOICE" = "1" ]; then
+    IS_EN=true
+  else
+    IS_EN=false
+  fi
+
   # Try npm first if available
   if try_npm_install; then
-    echo -e "\n${CYAN}  Run ${RESET}jckw${CYAN} to get started!${RESET}\n"
+    if [ "$IS_EN" = true ]; then
+      echo -e "\n${CYAN}  Installation complete, please close this tab and try 'jckw' in your terminal!${RESET}\n"
+    else
+      echo -e "\n${CYAN}  Instalasi selesai silahkan close tab ini dan coba di terminal anda jckw${RESET}\n"
+    fi
     exit 0
   fi
 
@@ -133,9 +148,13 @@ main() {
   TMP=$(download_binary)
   install_binary "$TMP"
 
-  success "jckw ${VERSION} installed to ${INSTALL_DIR}/${BIN_NAME}"
-  echo -e "\n${CYAN}  Run ${RESET}jckw${CYAN} to get started!${RESET}\n"
-  echo -e "${GRAY}  First run will launch the setup wizard.${RESET}\n"
+  if [ "$IS_EN" = true ]; then
+    success "jckw ${VERSION} installed to ${INSTALL_DIR}/${BIN_NAME}"
+    echo -e "\n${CYAN}  Installation complete, please close this tab and try 'jckw' in your terminal!${RESET}\n"
+  else
+    success "jckw ${VERSION} berhasil diinstal ke ${INSTALL_DIR}/${BIN_NAME}"
+    echo -e "\n${CYAN}  Instalasi selesai silahkan close tab ini dan coba di terminal anda jckw${RESET}\n"
+  fi
 }
 
 main "$@"

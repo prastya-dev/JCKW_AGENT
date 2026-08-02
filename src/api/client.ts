@@ -81,9 +81,10 @@ export async function onboardAntigravity(): Promise<string> {
   if (cfg.environment.antigravity_project_id) {
     let pid: any = cfg.environment.antigravity_project_id;
     if (typeof pid === 'object') {
-      pid = pid.id || pid.name || String(pid);
+      pid = pid.id || pid.name || 'jckw-agent-12345';
+      if (typeof pid === 'object') pid = 'jckw-agent-12345';
     }
-    return pid;
+    return String(pid);
   }
 
   try {
@@ -113,11 +114,13 @@ export async function onboardAntigravity(): Promise<string> {
 
     if (typeof projectId === 'object') {
        projectId = projectId.id || projectId.name || 'jckw-agent-12345';
+       if (typeof projectId === 'object') projectId = 'jckw-agent-12345';
     }
 
     if (projectId) {
+      projectId = String(projectId);
       updateConfig({ environment: { antigravity_project_id: projectId } as never });
-      return projectId as string;
+      return projectId;
     }
     
     // Fallback if API changed but didn't throw

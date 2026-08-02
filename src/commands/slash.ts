@@ -40,6 +40,10 @@ export async function handleSlashCommand(input: string): Promise<void> {
       handleClear();
       break;
 
+    case '/token':
+      handleToken();
+      break;
+
     case '/exit':
     case '/quit':
       handleExit();
@@ -123,6 +127,27 @@ function handleClear(): void {
   renderStatusBar();
 }
 
+// ── /token ─────────────────────────────────────────────────
+
+function handleToken(): void {
+  const t = getTheme();
+  const cols = process.stdout.columns || 80;
+  const sep = `${t.separator}${'─'.repeat(cols)}${t.reset}`;
+
+  process.stdout.write('\n' + sep + '\n');
+  process.stdout.write(`${t.accent}  ℹ Informasi Kuota Token (Google Antigravity)${t.reset}\n`);
+  process.stdout.write(sep + '\n\n');
+  process.stdout.write(`  Google Cloud Code Assist tidak menyediakan API publik untuk mengecek\n`);
+  process.stdout.write(`  sisa kuota token secara real-time. Namun, berikut adalah limitasi umumnya:\n\n`);
+  process.stdout.write(`  ${t.bold}• Batas Pemakaian (Standard Tier):${t.reset}\n`);
+  process.stdout.write(`    - Kuota di-reset setiap ${t.accent}5 jam${t.reset}.\n`);
+  process.stdout.write(`    - Terdapat juga batasan penggunaan ${t.accent}mingguan${t.reset} yang dinamis.\n\n`);
+  process.stdout.write(`  ${t.bold}• Jika Kuota Habis (Rate Limited):${t.reset}\n`);
+  process.stdout.write(`    - Anda akan melihat error 429 atau "RESOURCE_EXHAUSTED".\n`);
+  process.stdout.write(`    - Solusi: Menunggu sekitar 5 jam agar kuota terisi kembali.\n`);
+  process.stdout.write('\n' + sep + '\n\n');
+}
+
 // ── /exit ──────────────────────────────────────────────────
 
 function handleExit(): void {
@@ -171,6 +196,7 @@ function handleHelp(): void {
     ['/quiz',        'Pindah ke mode quiz (jawaban super singkat)'],
     ['/model',       'Buka selector model interaktif'],
     ['/clear',       'Bersihkan layar dan reset tampilan'],
+    ['/token',       'Lihat info kuota pemakaian token'],
     ['/cd <path>',   'Ubah direktori kerja aktif'],
     ['/help',        'Tampilkan bantuan ini'],
     ['/exit',        'Keluar dari JCKW-AGENT'],

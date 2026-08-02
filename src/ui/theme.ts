@@ -19,6 +19,23 @@ export interface ThemeColors {
   reset: string;
 }
 
+export const A = {
+  reset:      '\x1b[0m',
+  bold:       '\x1b[1m',
+  dim:        '\x1b[2m',
+  cyan:       '\x1b[96m',
+  blue:       '\x1b[94m',
+  green:      '\x1b[92m',
+  red:        '\x1b[91m',
+  white:      '\x1b[97m',
+  gray:       '\x1b[90m',
+  saveCursor: '\x1b7',
+  restCursor: '\x1b8',
+  up: (n: number) => `\x1b[${n}A`,
+  col: (c: number) => `\x1b[${c}G`,
+  clearLine:  '\x1b[2K',
+};
+
 const themes: Record<'chat' | 'exec' | 'quiz', ThemeColors> = {
   chat: {
     accent:    '\x1b[38;2;0;212;255m', // Cyan
