@@ -29,7 +29,14 @@ export function showConfirmDialog(command: string): Promise<boolean> {
 
     // Print the detected command block first
     console.log(`\n${t.dim}Perintah terdeteksi:${t.reset}`);
-    console.log(`${t.accent}  $ ${t.text}${command}${t.reset}\n`);
+    let displayCommand = command;
+    const lines = command.split('\n');
+    if (lines.length > 5) {
+       displayCommand = lines.slice(0, 4).join('\n') + `\n  ... (terpotong, total ${lines.length} baris)`;
+    } else if (displayCommand.length > 300) {
+       displayCommand = displayCommand.substring(0, 300) + `\n  ... (terpotong, total ${command.length} karakter)`;
+    }
+    console.log(`${t.accent}  $ ${t.text}${displayCommand}${t.reset}\n`);
 
     // Initial render
     render();

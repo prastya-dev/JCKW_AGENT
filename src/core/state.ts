@@ -55,6 +55,12 @@ class StateManager {
     this.notify();
   }
 
+  /** Clear the chat history (reset session) */
+  clearHistory(): void {
+    this.state.history = [];
+    this.notify();
+  }
+
   /** Toggle between chat and exec modes */
   toggleMode(): void {
     this.state.activeMode = this.state.activeMode === 'chat' ? 'exec' : 'chat';

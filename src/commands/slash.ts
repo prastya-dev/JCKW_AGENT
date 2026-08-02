@@ -70,7 +70,8 @@ async function handleModeChange(newMode: 'chat' | 'exec' | 'quiz'): Promise<void
   stateManager.update({ activeMode: newMode });
   applyTheme(newMode);
 
-  // Clear screen and print new banner
+  // Clear screen, history, and print new banner
+  stateManager.clearHistory();
   handleClear();
 
   // Persist mode preference
@@ -114,7 +115,8 @@ async function handleModelSelect(): Promise<void> {
 // ── /clear ─────────────────────────────────────────────────
 
 function handleClear(): void {
-  // Clear screen and reset scroll position
+  // Clear screen, history, and reset scroll position
+  stateManager.clearHistory();
   process.stdout.write('\x1b[2J\x1b[H');
   // Re-render banner and status bar
   renderBanner();

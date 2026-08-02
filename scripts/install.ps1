@@ -12,9 +12,17 @@ try {
     Write-Host "  by prastya-dev" -ForegroundColor DarkGray
     Write-Host ""
 
+    # Pastikan PowerShell menggunakan TLS 1.2 (wajib untuk GitHub)
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
+    # Set User-Agent agar tidak diblokir GitHub API (menghindari error 403)
+    $headers = @{
+        "User-Agent" = "JCKW-AGENT-Installer"
+    }
+
     Write-Host "  -> Mencari rilis versi terbaru di GitHub..." -ForegroundColor Cyan
     $apiUrl = "https://api.github.com/repos/$Repo/releases/latest"
-    $response = Invoke-RestMethod -Uri $apiUrl -UseBasicParsing
+    $response = Invoke-RestMethod -Uri $apiUrl -Headers $headers -UseBasicParsing
     $Version = $response.tag_name
 
     if (-not $Version) {
@@ -28,7 +36,7 @@ try {
     $TmpPath   = [System.IO.Path]::GetTempFileName() + ".exe"
 
     Write-Host "  -> Mengunduh jckw $Version untuk Windows..." -ForegroundColor Cyan
-    Invoke-WebRequest -Uri $BinaryUrl -OutFile $TmpPath -UseBasicParsing
+    Invoke-WebRequest -Uri $BinaryUrl -OutFile $TmpPath -Headers $headers -UseBasicParsing
 
     # Proses Instalasi Biner
     if (-not (Test-Path $InstallDir)) {

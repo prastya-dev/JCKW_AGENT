@@ -1,6 +1,7 @@
 import * as http from 'http';
 import * as https from 'https';
 import { TYPEWRITER_DELAY_MS } from '../core/constants';
+import { getTheme } from '../ui/theme';
 
 // ============================================================
 // JCKW-AGENT — SSE Stream Parser + Typewriter Effect
@@ -13,18 +14,108 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/** Write a single character to stdout with typewriter delay */
-async function writeChar(char: string): Promise<void> {
-  process.stdout.write(char);
-  if (TYPEWRITER_DELAY_MS > 0) {
-    await sleep(TYPEWRITER_DELAY_MS);
-  }
-}
+class DelayedTypewriter {
+  private buffer = '';
+  private isHidden = false;
+  private execMatch = '```json_exec';
+  private closeMatch = '```';
+  private t = getTheme();
+  private frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+  private frameIndex = 0;
+  private spinnerTimer?: any;
 
-/** Write a string with typewriter effect character by character */
-async function typewriterWrite(text: string): Promise<void> {
-  for (const char of text) {
-    await writeChar(char);
+  constructor(private hideExec: boolean) {}
+
+  async write(text: string) {
+    if (!this.hideExec) {
+      for (const char of text) {
+        process.stdout.write(char);
+        if (TYPEWRITER_DELAY_MS > 0) {
+          await sleep(TYPEWRITER_DELAY_MS);
+        }
+      }
+      return;
+    }
+
+    for (const char of text) {
+      this.buffer += char;
+
+      if (!this.isHidden) {
+        let isPrefix = false;
+        for (let i = this.execMatch.length; i >= 1; i--) {
+          if (this.buffer.endsWith(this.execMatch.slice(0, i))) {
+            isPrefix = true;
+            if (i === this.execMatch.length) {
+               this.isHidden = true;
+               const safeToPrint = this.buffer.slice(0, -this.execMatch.length);
+               for (const c of safeToPrint) {
+                 process.stdout.write(c);
+                 if (TYPEWRITER_DELAY_MS > 0) await sleep(TYPEWRITER_DELAY_MS);
+               }
+               
+               process.stdout.write('\n');
+               this.spinnerTimer = setInterval(() => {
+                 process.stdout.write(`\r\x1b[K${this.t.accent}${this.frames[this.frameIndex]} ${this.t.dim}Generating command...${this.t.reset}`);
+                 this.frameIndex = (this.frameIndex + 1) % this.frames.length;
+               }, 100);
+               this.buffer = '';
+            } else {
+               const safeToPrint = this.buffer.slice(0, -i);
+               for (const c of safeToPrint) {
+                 process.stdout.write(c);
+                 if (TYPEWRITER_DELAY_MS > 0) await sleep(TYPEWRITER_DELAY_MS);
+               }
+               this.buffer = this.buffer.slice(-i);
+            }
+            break;
+          }
+        }
+
+        if (!isPrefix) {
+          for (const c of this.buffer) {
+             process.stdout.write(c);
+             if (TYPEWRITER_DELAY_MS > 0) await sleep(TYPEWRITER_DELAY_MS);
+          }
+          this.buffer = '';
+        }
+      } else {
+        // Hidden mode
+        let isPrefix = false;
+        for (let i = this.closeMatch.length; i >= 1; i--) {
+           if (this.buffer.endsWith(this.closeMatch.slice(0, i))) {
+             isPrefix = true;
+             if (i === this.closeMatch.length) {
+               this.isHidden = false;
+               if (this.spinnerTimer) {
+                 clearInterval(this.spinnerTimer);
+                 process.stdout.write('\r\x1b[K');
+                 this.spinnerTimer = undefined;
+               }
+               this.buffer = '';
+             } else {
+               this.buffer = this.buffer.slice(-i);
+             }
+             break;
+           }
+        }
+        if (!isPrefix) {
+           this.buffer = '';
+        }
+      }
+    }
+  }
+
+  async stop() {
+    if (this.spinnerTimer) {
+      clearInterval(this.spinnerTimer);
+      process.stdout.write('\r\x1b[K');
+    }
+    if (!this.isHidden && this.buffer) {
+      for (const c of this.buffer) {
+         process.stdout.write(c);
+         if (TYPEWRITER_DELAY_MS > 0) await sleep(TYPEWRITER_DELAY_MS);
+      }
+    }
   }
 }
 
@@ -80,10 +171,13 @@ export function streamResponse(
   res: http.IncomingMessage,
   resolve: (text: string) => void,
   reject: (err: Error) => void,
+  options: { hideExec?: boolean } = {}
 ): void {
   let buffer = '';
   let fullText = '';
   let pendingWrites: Promise<void> = Promise.resolve();
+
+  const typewriter = new DelayedTypewriter(!!options.hideExec);
 
   res.setEncoding('utf8');
 
@@ -115,7 +209,7 @@ export function streamResponse(
 
       // Chain typewriter writes to preserve order
       const textCopy = text;
-      pendingWrites = pendingWrites.then(() => typewriterWrite(textCopy));
+      pendingWrites = pendingWrites.then(() => typewriter.write(textCopy));
     }
   });
 
@@ -125,12 +219,12 @@ export function streamResponse(
       const text = extractTextFromChunk(buffer.trim());
       if (text) {
         fullText += text;
-        pendingWrites = pendingWrites.then(() => typewriterWrite(text));
+        pendingWrites = pendingWrites.then(() => typewriter.write(text));
       }
     }
 
     // Wait for all pending typewriter writes to finish before resolving
-    pendingWrites.then(() => {
+    pendingWrites.then(() => typewriter.stop()).then(() => {
       process.stdout.write('\n');
       resolve(fullText);
     });

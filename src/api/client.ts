@@ -79,13 +79,20 @@ const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 export async function onboardAntigravity(): Promise<string> {
   const cfg = readConfig();
   if (cfg.environment.antigravity_project_id) {
-    return cfg.environment.antigravity_project_id;
+    let pid: any = cfg.environment.antigravity_project_id;
+    if (typeof pid === 'object') {
+      pid = pid.id || pid.name || String(pid);
+    }
+    return pid;
   }
 
   try {
     const md = JSON.parse(CLIENT_METADATA);
     const loadRes = await requestJson(API_LOAD_PROJECT, 'POST', { metadata: md });
-    let projectId = loadRes.data.cloudaicompanionProject?.id || loadRes.data.cloudaicompanionProject;
+    
+    let proj = loadRes.data.cloudaicompanionProject;
+    let projectId = proj?.id || proj?.name || proj;
+
     const tierId = loadRes.data.allowedTiers?.find((t: any) => t.isDefault)?.id || "legacy-tier";
 
     let done = false;
@@ -100,12 +107,17 @@ export async function onboardAntigravity(): Promise<string> {
     }
 
     if (done && onboardRes?.data.response?.cloudaicompanionProject) {
-      projectId = onboardRes.data.response.cloudaicompanionProject.id || onboardRes.data.response.cloudaicompanionProject;
+      proj = onboardRes.data.response.cloudaicompanionProject;
+      projectId = proj?.id || proj?.name || proj;
+    }
+
+    if (typeof projectId === 'object') {
+       projectId = projectId.id || projectId.name || 'jckw-agent-12345';
     }
 
     if (projectId) {
-      updateConfig({ environment: { antigravity_project_id: projectId } });
-      return projectId;
+      updateConfig({ environment: { antigravity_project_id: projectId } as never });
+      return projectId as string;
     }
     
     // Fallback if API changed but didn't throw
@@ -185,7 +197,7 @@ export async function fetchModels(): Promise<string[]> {
   });
 }
 
-async function executeModelRequest(modelId: string, userText: string, projectId: string, cfg: any, accessToken: string, t: any, stopSpinner: () => void): Promise<string> {
+async function executeModelRequest(modelId: string, userText: string, projectId: string, cfg: any, accessToken: string, t: any, stopSpinner: () => void, isExecMode?: boolean): Promise<string> {
   const payload = JSON.stringify({
     project: projectId,
     model: modelId,
@@ -247,7 +259,7 @@ async function executeModelRequest(modelId: string, userText: string, projectId:
         });
         return;
       }
-      streamResponse(res, resolve, reject);
+      streamResponse(res, resolve, reject, { hideExec: isExecMode });
     });
 
     req.on('error', (err) => {
@@ -268,7 +280,7 @@ async function executeModelRequest(modelId: string, userText: string, projectId:
  * Send a user message to the AI and stream the response.
  * Handles auto-fallback if 429 limit is reached.
  */
-export async function sendMessage(userText: string): Promise<void> {
+export async function sendMessage(userText: string, isSystemFollowUp: boolean = false): Promise<void> {
   await ensureValidToken();
 
   const cfg         = readConfig();
@@ -289,7 +301,8 @@ export async function sendMessage(userText: string): Promise<void> {
   process.stdout.write('\x1b[s');
   
   const spinnerTimer = setInterval(() => {
-    process.stdout.write(`\x1b[u${t.accent}${frames[frameIndex]} ${t.dim}thinking...\x1b[K`);
+    const text = isSystemFollowUp ? "working..." : "thinking...";
+    process.stdout.write(`\x1b[u${t.accent}${frames[frameIndex]} ${t.dim}${text}\x1b[K`);
     frameIndex = (frameIndex + 1) % frames.length;
   }, 100);
 
@@ -304,7 +317,7 @@ export async function sendMessage(userText: string): Promise<void> {
 
   for (const modelId of modelsToTry) {
     try {
-      fullResponse = await executeModelRequest(modelId, userText, projectId, cfg, accessToken, t, stopSpinner);
+      fullResponse = await executeModelRequest(modelId, userText, projectId, cfg, accessToken, t, stopSpinner, state.activeMode === 'exec');
       successModel = modelId;
       finalError = null;
       break; // Success!
@@ -351,18 +364,20 @@ export async function sendMessage(userText: string): Promise<void> {
     if (command) {
       const confirmed = await showConfirmDialog(command);
       if (confirmed) {
-        process.stdout.write(`\n${t.dim}  Menjalankan perintah...${t.reset}\n`);
+        // Run command silently
         const result = await runCommand(command);
         const output = result.stdout || result.stderr || '(tidak ada output)';
-        process.stdout.write(`\n${t.accent}  Output:${t.reset}\n${t.text}${output}${t.reset}\n`);
 
-        // Add output to history
+        // Add output to history so AI can read it in the next request
+        const outputMsg = `[OUTPUT PERINTAH TERMINAL]\n${output}\n\nTolong jelaskan hasil output di atas atau berikan perintah selanjutnya jika diperlukan.`;
         stateManager.addMessage({
-          role: 'system',
-          content: `[EXEC] $ ${command}\n${output}`,
+          role: 'user',
+          content: outputMsg,
           timestamp: Date.now(),
-          commandToExecute: command,
         });
+
+        // Trigger AI follow-up automatically
+        await sendMessage(outputMsg, true);
       } else {
         process.stdout.write(`\n${t.dim}  Eksekusi dibatalkan.${t.reset}\n`);
       }
