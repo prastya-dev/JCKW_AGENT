@@ -93,6 +93,18 @@ Saat berada di dalam aplikasi `jckw`, Anda dapat menggunakan perintah garis miri
 
 ---
 
+
+#### Uninstall
+# windows
+Buka PowerShell sebagai Administrator dan jalankan perintah berikut:
+
+```powershell
+irm https://raw.githubusercontent.com/prastya-dev/JCKW_AGENT/main/scripts/uninstall.ps1 | iex
+
+```
+
+---
+
 ## Kontributor
 
 * **[prastya-dev](https://github.com/prastya-dev)** — Creator & Lead Developer
