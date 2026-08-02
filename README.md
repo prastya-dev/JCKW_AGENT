@@ -94,8 +94,8 @@ Saat berada di dalam aplikasi `jckw`, Anda dapat menggunakan perintah garis miri
 ---
 
 
-#### Uninstall
-# windows
+## Uninstall
+#### windows
 Buka PowerShell sebagai Administrator dan jalankan perintah berikut:
 
 ```powershell
