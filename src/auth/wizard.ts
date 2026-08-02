@@ -367,7 +367,7 @@ export async function runUninstall(): Promise<void> {
   } catch {}
 
   console.log('\n' + sep);
-  console.log(`  ${A.cyan}Antigravity — JCKW-AGENT Uninstall${A.reset}`);
+  console.log(`  ${A.cyan}JCKW-AGENT - Uninstall${A.reset}`);
   console.log(sep);
   
   // 1. Delete Config
