@@ -20,10 +20,10 @@ JCKW-Agent is a revolutionary terminal-based AI assistant designed specifically 
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-- **🧠 Advanced AI Models Access:** Seamlessly supports cutting-edge models (Claude, Gemini, etc.) dynamically through Google's infrastructure.
-- **🔄 Dual Operational Modes:**
+- ** Advanced AI Models Access:** Seamlessly supports cutting-edge models (Claude, Gemini, etc.) dynamically through Google's infrastructure.
+- ** Dual Operational Modes:**
   - `CHAT MODE` : An interactive discussion companion for coding, debugging, or general Q&A.
   - `EXEC MODE` : Command the AI to autonomously compose and execute terminal commands (equipped with a security confirmation system).
 - **🔒 Smart Authentication (OAuth2):** Secure integrated login system via browser.
@@ -114,7 +114,7 @@ jckw --uninstall
 
 ## 👥 Contributors
 
-Crafted with ❤️ by **[prastya-dev](https://github.com/prastya-dev)** — _Creator & Lead Developer_.
+Crafted with  by **[prastya-dev](https://github.com/prastya-dev)** — _Creator & Lead Developer_.
 
 ---
 <div align="center">
