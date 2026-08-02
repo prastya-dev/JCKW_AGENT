@@ -35,8 +35,22 @@ try {
         New-Item -ItemType Directory -Path $InstallDir -Force | Out-Null
     }
 
-    $DestPath = Join-Path $InstallDir $BinName
-    Move-Item -Path $TmpPath -Destination $DestPath -Force
+   $DestPath = Join-Path $InstallDir $BinName
+
+if (Test-Path $DestPath) {
+    Write-Host "  -> Menghapus instalasi lama..." -ForegroundColor Yellow
+
+    try {
+        Remove-Item -Path $DestPath -Force -ErrorAction Stop
+        Write-Host "  ✓ File lama berhasil dihapus." -ForegroundColor Green
+    }
+    catch {
+        throw "Tidak dapat menghapus file lama. Pastikan jckw tidak sedang berjalan."
+    }
+}
+
+Move-Item -Path $TmpPath -Destination $DestPath -Force
+Write-Host "  ✓ Versi terbaru berhasil dipasang." -ForegroundColor Green
 
     # Tambahkan ke Environment PATH
     $CurrentPath = [Environment]::GetEnvironmentVariable("PATH", "User")
