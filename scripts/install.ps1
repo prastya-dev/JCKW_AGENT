@@ -1,5 +1,5 @@
 # ============================================================
-# JCKW-AGENT Install Script (Windows - PowerShell - Binary Only)
+# JCKW-AGENT Install Script (Windows - PowerShell - Direct Download)
 # ============================================================
 
 try {
@@ -12,31 +12,15 @@ try {
     Write-Host "  by prastya-dev" -ForegroundColor DarkGray
     Write-Host ""
 
-    # Pastikan PowerShell menggunakan TLS 1.2 (wajib untuk GitHub)
+    # Pastikan PowerShell menggunakan TLS 1.2
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-    # Set User-Agent agar tidak diblokir GitHub API (menghindari error 403)
-    $headers = @{
-        "User-Agent" = "JCKW-AGENT-Installer"
-    }
-
-    Write-Host "  -> Mencari rilis versi terbaru di GitHub..." -ForegroundColor Cyan
-    $apiUrl = "https://api.github.com/repos/$Repo/releases/latest"
-    $response = Invoke-RestMethod -Uri $apiUrl -Headers $headers -UseBasicParsing
-    $Version = $response.tag_name
-
-    if (-not $Version) {
-        throw "Gagal mendapatkan informasi rilis terbaru dari GitHub."
-    }
-
-    Write-Host "  -> Versi terbaru: $Version" -ForegroundColor Cyan
-
-    # PASTIKAN FILE jckw-win-x64.exe SUDAH ADA DI MENU RELEASES GITHUB
-    $BinaryUrl = "https://github.com/$Repo/releases/download/$Version/jckw-win-x64.exe"
+    # Direct Link ke versi rilis terbaru (Bypass API Rate Limit)
+    $BinaryUrl = "https://github.com/$Repo/releases/latest/download/jckw-win-x64.exe"
     $TmpPath   = [System.IO.Path]::GetTempFileName() + ".exe"
 
-    Write-Host "  -> Mengunduh jckw $Version untuk Windows..." -ForegroundColor Cyan
-    Invoke-WebRequest -Uri $BinaryUrl -OutFile $TmpPath -Headers $headers -UseBasicParsing
+    Write-Host "  -> Mengunduh jckw versi terbaru dari GitHub..." -ForegroundColor Cyan
+    Invoke-WebRequest -Uri $BinaryUrl -OutFile $TmpPath -UseBasicParsing -MaximumRedirection 5
 
     # Proses Instalasi Biner
     if (-not (Test-Path $InstallDir)) {
@@ -54,7 +38,7 @@ try {
         Write-Host "  v PATH berhasil diupdate." -ForegroundColor Green
     }
 
-    Write-Host "  v jckw $Version berhasil diinstal ke $DestPath" -ForegroundColor Green
+    Write-Host "  v jckw berhasil diinstal ke $DestPath" -ForegroundColor Green
     Write-Host ""
     Write-Host "  🎉 INSTALASI SELESAI!" -ForegroundColor Green
     Write-Host "  Silakan buka terminal PowerShell BARU, lalu ketik:" -ForegroundColor White
@@ -62,13 +46,11 @@ try {
     Write-Host ""
 
 } catch {
-    # TANGKAP SEMUA ERROR AGAR TERMINAL BISA DIBACA
     Write-Host ""
     Write-Host "  ❌ TERJADI ERROR SAAT INSTALASI:" -ForegroundColor Red
     Write-Host "  $($_.Exception.Message)" -ForegroundColor Red
     Write-Host ""
 } finally {
-    # TAHAN TERMINAL AGAR TIDAK LANGSUNG CLOSE
     Write-Host "========================================" -ForegroundColor DarkGray
     Read-Host "Tekan [ENTER] untuk menutup jendela ini"
 }
