@@ -65,21 +65,34 @@ try {
     if ($IsEn) { Write-Host "  -> Adding 'Run JCKW Here' to folder context menu..." -ForegroundColor Cyan }
     else { Write-Host "  -> Menambahkan opsi 'Run JCKW Here' ke klik-kanan folder..." -ForegroundColor Cyan }
     
+    # Download icon for Context Menu
+    $IconUrl = "https://raw.githubusercontent.com/$Repo/main/jckw.ico"
+    $IconPath = Join-Path $InstallDir "jckw.ico"
+    try {
+        Invoke-WebRequest -Uri $IconUrl -OutFile $IconPath -Headers $headers -UseBasicParsing
+    } catch {
+        $IconPath = $DestPath
+    }
+
+    # Buat launcher script agar wt.exe (Windows Terminal) diprioritaskan
+    $LauncherPath = Join-Path $InstallDir "jckw-here.cmd"
+    Set-Content -Path $LauncherPath -Value "@echo off`nwt.exe -d `"%~1`" cmd.exe /k jckw 2>nul || start /d `"%~1`" cmd.exe /k jckw"
+
     # 1. Background File Explorer (Klik kanan di ruang kosong explorer)
     $RegBgShell = "HKCU:\Software\Classes\Directory\Background\shell\JCKW"
     New-Item -Path $RegBgShell -Force | Out-Null
     Set-ItemProperty -Path $RegBgShell -Name "(Default)" -Value "Run JCKW Here" -Force
-    Set-ItemProperty -Path $RegBgShell -Name "Icon" -Value "`"$DestPath`"" -Force
+    Set-ItemProperty -Path $RegBgShell -Name "Icon" -Value "`"$IconPath`"" -Force
     New-Item -Path "$RegBgShell\command" -Force | Out-Null
-    Set-ItemProperty -Path "$RegBgShell\command" -Name "(Default)" -Value "cmd.exe /c start /d `"%V`" jckw" -Force
+    Set-ItemProperty -Path "$RegBgShell\command" -Name "(Default)" -Value "`"$LauncherPath`" `"%V`"" -Force
 
     # 2. Directory (Klik kanan pada sebuah folder)
     $RegDirShell = "HKCU:\Software\Classes\Directory\shell\JCKW"
     New-Item -Path $RegDirShell -Force | Out-Null
     Set-ItemProperty -Path $RegDirShell -Name "(Default)" -Value "Run JCKW Here" -Force
-    Set-ItemProperty -Path $RegDirShell -Name "Icon" -Value "`"$DestPath`"" -Force
+    Set-ItemProperty -Path $RegDirShell -Name "Icon" -Value "`"$IconPath`"" -Force
     New-Item -Path "$RegDirShell\command" -Force | Out-Null
-    Set-ItemProperty -Path "$RegDirShell\command" -Name "(Default)" -Value "cmd.exe /c start /d `"%1`" jckw" -Force
+    Set-ItemProperty -Path "$RegDirShell\command" -Name "(Default)" -Value "`"$LauncherPath`" `"%1`"" -Force
 
     if ($IsEn) { Write-Host "  v Context Menu added successfully." -ForegroundColor Green }
     else { Write-Host "  v Context Menu berhasil ditambahkan." -ForegroundColor Green }

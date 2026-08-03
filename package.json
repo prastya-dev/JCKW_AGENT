@@ -1,6 +1,6 @@
 {
   "name": "@prastya-dev/jckw-agent",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "JCKW-AGENT: AI CLI Terminal Interface by prastya-dev, powered by Google Antigravity",
   "main": "dist/index.js",
   "files": [
@@ -14,9 +14,9 @@
     "dev": "ts-node src/index.ts",
     "start": "node dist/index.js",
     "clean": "rm -rf dist binaries",
-    "pkg:linux": "pkg dist/index.js --targets node18-linux-x64 --output binaries/jckw-linux --compress GZip",
-    "pkg:macos": "pkg dist/index.js --targets node18-macos-x64 --output binaries/jckw-macos --compress GZip",
-    "pkg:win": "pkg dist/index.js --targets node18-win-x64 --output binaries/jckw-win.exe --compress GZip",
+    "pkg:linux": "pkg dist/index.js --targets node18-linux-x64 --output binaries/jckw-linux-x64 --compress GZip",
+    "pkg:macos": "pkg dist/index.js --targets node18-macos-x64 --output binaries/jckw-macos-x64 --compress GZip",
+    "pkg:win": "pkg dist/index.js --targets node18-win-x64 --output binaries/jckw-win-x64.exe --compress GZip",
     "pkg:all": "npm run build && npm run pkg:linux && npm run pkg:macos && npm run pkg:win"
   },
   "keywords": [

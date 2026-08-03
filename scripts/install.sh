@@ -103,6 +103,50 @@ install_binary() {
     info "Requesting sudo to install to ${INSTALL_DIR}..."
     sudo mv "$tmp_file" "${INSTALL_DIR}/${BIN_NAME}"
   fi
+
+  # Linux File Manager Context Menu (Run JCKW Here)
+  if [ "$PLATFORM" = "linux" ]; then
+    info "Setting up 'Run JCKW Here' context menu for Linux..."
+    ICON_DIR="${HOME}/.local/share/icons/hicolor/256x256/apps"
+    mkdir -p "$ICON_DIR"
+    if command -v curl &>/dev/null; then
+      curl -fsSL "https://raw.githubusercontent.com/${REPO}/main/icon.png" -o "${ICON_DIR}/jckw.png" || true
+    else
+      wget -q "https://raw.githubusercontent.com/${REPO}/main/icon.png" -O "${ICON_DIR}/jckw.png" || true
+    fi
+
+    # KDE/Dolphin
+    KDE_DIR="${HOME}/.local/share/kio/servicemenus"
+    mkdir -p "$KDE_DIR"
+    cat <<EOF > "${KDE_DIR}/jckw.desktop"
+[Desktop Entry]
+Type=Service
+ServiceTypes=KonqPopupMenu/Plugin
+MimeType=inode/directory;
+Actions=runJckw;
+X-KDE-Priority=TopLevel
+
+[Desktop Action runJckw]
+Name=Run JCKW Here
+Icon=jckw
+Exec=konsole --workdir %f -e jckw || gnome-terminal --working-directory=%f -- jckw || xterm -e "cd %f && jckw"
+EOF
+
+    # Nautilus/Nemo
+    FM_DIR="${HOME}/.local/share/file-manager/actions"
+    mkdir -p "$FM_DIR"
+    cat <<EOF > "${FM_DIR}/jckw.desktop"
+[Desktop Entry]
+Type=Action
+Name=Run JCKW Here
+Icon=jckw
+Profiles=profile-zero;
+
+[X-Action-Profile profile-zero]
+Exec=gnome-terminal --working-directory=%f -- jckw || konsole --workdir %f -e jckw || xterm -e "cd %f && jckw"
+Name=Default profile
+EOF
+  fi
 }
 
 # ── npm alternative ────────────────────────────────────────────

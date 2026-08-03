@@ -8,7 +8,8 @@ const ASCII_BANNER = `
  ┏┓┏━╸╻┏ ╻ ╻   ┏━┓┏━╸┏━╸┏┓╻╺┳╸
   ┃┃  ┣┻┓┃╻┃╺━╸┣━┫┃╺┓┣╸ ┃┗┫ ┃ 
 ┗━┛┗━╸╹ ╹┗┻┛   ╹ ╹┗━┛┗━╸╹ ╹ ╹ 
-                  AI CLI [ BETA VERSION v${APP_VERSION} ]
+                  AI CLI [ v${APP_VERSION} ]
+                  https://jckw-agent.dhyy.cloud
 `;
 
 /** Renders the full banner with current mode's accent colour */
