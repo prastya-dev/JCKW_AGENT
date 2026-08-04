@@ -146,6 +146,20 @@ Profiles=profile-zero;
 Exec=gnome-terminal --working-directory=%f -- jckw || konsole --workdir %f -e jckw || xterm -e "cd %f && jckw"
 Name=Default profile
 EOF
+
+    # Application Launcher Shortcut
+    APP_DIR="${HOME}/.local/share/applications"
+    mkdir -p "$APP_DIR"
+    cat <<EOF > "${APP_DIR}/jckw.desktop"
+[Desktop Entry]
+Name=JCKW Agent
+Comment=AI CLI Terminal Interface
+Exec=jckw
+Icon=jckw
+Terminal=true
+Type=Application
+Categories=Utility;Development;TerminalEmulator;
+EOF
   fi
 }
 

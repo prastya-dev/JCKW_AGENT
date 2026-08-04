@@ -256,7 +256,7 @@ export async function runWizard(): Promise<void> {
       const regBg = 'HKCU\\Software\\Classes\\Directory\\Background\\shell\\JCKW';
       const regDir = 'HKCU\\Software\\Classes\\Directory\\shell\\JCKW';
       
-      // Tambahkan registry untuk Background & Directory
+      // Tambahkan registry minimalis sebagai fallback
       execSync(`reg add "${regBg}" /ve /d "Run JCKW Here" /f > nul 2>&1`, { stdio: 'ignore' });
       execSync(`reg add "${regBg}\\command" /ve /d "cmd.exe /c start /d \\"%V\\" jckw" /f > nul 2>&1`, { stdio: 'ignore' });
       execSync(`reg add "${regDir}" /ve /d "Run JCKW Here" /f > nul 2>&1`, { stdio: 'ignore' });
@@ -336,6 +336,19 @@ export async function runWizard(): Promise<void> {
     process.stdout.write(`\n  ${A.green}✓ ${isEn ? 'Default model saved' : 'Model default disimpan'}: ${A.white}${chosen}${A.reset}\n\n`);
   } else {
     process.stdout.write(`\n  ${A.gray}${isEn ? 'Using default model' : 'Menggunakan model bawaan'}: ${A.white}${DEFAULT_MODEL}${A.reset}\n\n`);
+  }
+
+  // OS Integration Setup Prompt
+  const readline = require('readline');
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  const answer = await new Promise<string>(resolve => {
+    rl.question(`  ${A.cyan}[?]${A.reset} ${A.white}${isEn ? 'Add JCKW to Right-Click Menu & App Launcher? (Y/n)' : 'Tambahkan JCKW ke menu Klik-Kanan & Shortcut Aplikasi? (Y/n)'}${A.reset} `, resolve);
+  });
+  rl.close();
+
+  if (answer.trim().toLowerCase() !== 'n') {
+    const { setupOSIntegrations } = require('../core/setup');
+    await setupOSIntegrations();
   }
 }
 

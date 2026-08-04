@@ -130,6 +130,13 @@ async function main(): Promise<void> {
     process.exit(0);
   }
 
+  // ─ --setup ─
+  if (args.includes('--setup')) {
+    const { setupOSIntegrations } = await import('./core/setup');
+    await setupOSIntegrations();
+    process.exit(0);
+  }
+
   // ─ --config / --wizard (force re-login) ─
   if (args.includes('--config') || args.includes('--wizard')) {
     applyTheme('chat');
