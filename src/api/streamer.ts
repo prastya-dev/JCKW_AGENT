@@ -117,6 +117,15 @@ class DelayedTypewriter {
       }
     }
   }
+
+  // Tambahan helper untuk memaksa berhenti
+  forceStop() {
+    if (this.spinnerTimer) {
+      clearInterval(this.spinnerTimer);
+      process.stdout.write('\r\x1b[K');
+      this.spinnerTimer = undefined;
+    }
+  }
 }
 
 /**
@@ -209,7 +218,7 @@ export function streamResponse(
 
       // Chain typewriter writes to preserve order
       const textCopy = text;
-      pendingWrites = pendingWrites.then(() => typewriter.write(textCopy));
+      pendingWrites = pendingWrites.then(() => typewriter.write(textCopy)).catch(() => {});
     }
   });
 
@@ -219,7 +228,7 @@ export function streamResponse(
       const text = extractTextFromChunk(buffer.trim());
       if (text) {
         fullText += text;
-        pendingWrites = pendingWrites.then(() => typewriter.write(text));
+        pendingWrites = pendingWrites.then(() => typewriter.write(text)).catch(() => {});
       }
     }
 
@@ -231,6 +240,7 @@ export function streamResponse(
   });
 
   res.on('error', (err) => {
+    typewriter.forceStop();
     reject(new Error(`Stream error: ${err.message}`));
   });
 }

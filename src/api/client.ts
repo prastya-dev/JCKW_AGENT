@@ -269,10 +269,10 @@ async function executeModelRequest(modelId: string, userText: string, projectId:
       stopSpinner();
       reject(err);
     });
-    req.setTimeout(60000, () => {
+    req.setTimeout(180000, () => {
       stopSpinner();
       req.destroy();
-      reject(new Error('Request timeout (60s)'));
+      reject(new Error('Request timeout (180s)'));
     });
     req.write(payload);
     req.end();

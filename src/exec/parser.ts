@@ -10,7 +10,7 @@
  * { "command": "..." }
  * ```
  */
-const JSON_EXEC_PATTERN = /```json_exec\s*\n([\s\S]*?)\n?\s*```/i;
+const JSON_EXEC_PATTERN = /```json(?:_exec)?\s*\n([\s\S]*?)(?:\n?\s*```|$)/i;
 
 /**
  * Extract the shell command from a json_exec block in the AI response.
@@ -28,8 +28,8 @@ export function extractCommand(responseText: string): string | null {
       return command.trim();
     }
   } catch {
-    // Malformed JSON — try to extract command manually
-    const cmdMatch = /"command"\s*:\s*"([^"]+)"/.exec(jsonStr);
+    // Malformed JSON — try to extract command manually (even if cut off)
+    const cmdMatch = /"command"\s*:\s*"([^"]+)(?:"|$)/.exec(jsonStr);
     if (cmdMatch) {
       return cmdMatch[1].trim();
     }
