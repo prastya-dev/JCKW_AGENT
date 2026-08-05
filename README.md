@@ -22,18 +22,18 @@ JCKW-Agent is a revolutionary terminal-based AI assistant designed specifically 
 
 ## Key Features
 
-- ** Advanced AI Models Access:** Seamlessly supports cutting-edge models (Claude, Gemini, etc.) dynamically through Google's infrastructure.
-- ** Dual Operational Modes:**
+- **Advanced AI Models Access:** Seamlessly supports cutting-edge models (Claude, Gemini, etc.) dynamically through Google's infrastructure.
+- **Dual Operational Modes:**
   - `CHAT MODE` : An interactive discussion companion for coding, debugging, or general Q&A.
   - `EXEC MODE` : Command the AI to autonomously compose and execute terminal commands (equipped with a security confirmation system).
-- **🔒 Smart Authentication (OAuth2):** Secure integrated login system via browser.
-- **🎨 Modern TUI (Terminal User Interface):** A beautiful, intuitive, and responsive terminal experience featuring seamless keyboard navigation.
-- **🚀 Zero Dependencies:** Available as a standalone binary (Linux, macOS, Windows) requiring absolutely no Node.js installation!
-- **⚡ Smart OS Integration:** "Run JCKW Here" feature for lightning-fast access via Windows Context Menu.
+- **Smart Authentication (OAuth2):** Secure integrated login system via browser.
+- **Modern TUI (Terminal User Interface):** A beautiful, intuitive, and responsive terminal experience featuring seamless keyboard navigation.
+- **Zero Dependencies:** Available as a standalone binary (Linux, macOS, Windows) requiring absolutely no Node.js installation!
+- **Smart OS Integration:** "Run JCKW Here" feature for lightning-fast access via Windows Context Menu.
 
 ---
 
-## 🚀 Installation
+## Installation
 
 Choose the method that best fits your workflow:
 
@@ -41,13 +41,13 @@ Choose the method that best fits your workflow:
 > [!TIP]
 > This method is highly recommended if you prefer a hassle-free setup without installing Node.js.
 
-#### 🐧 Linux / 🍎 macOS
+#### Linux / macOS
 Open your terminal and run the following installation script:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/prastya-dev/JCKW_AGENT/main/scripts/install.sh | bash
 ```
 
-#### 🪟 Windows (Powershell)
+#### Windows (Powershell)
 Open PowerShell **as Administrator**, and run:
 ```powershell
 irm https://raw.githubusercontent.com/prastya-dev/JCKW_AGENT/main/scripts/install.ps1 | iex
@@ -68,7 +68,7 @@ npm install -g @prastya-dev/jckw-agent
 
 ---
 
-## 📖 Usage Guide
+## Usage Guide
 
 Starting JCKW-Agent is as easy as calling its name. Open a new terminal and type:
 
@@ -101,7 +101,7 @@ Type these commands directly inside the application's prompt to access various f
 
 ---
 
-## 🗑️ Uninstall
+## Uninstall
 
 If you wish to completely remove the application (including the Windows Registry Context Menu and secret session configurations):
 
@@ -112,7 +112,7 @@ jckw --uninstall
 
 ---
 
-## 👥 Contributors
+## Contributors
 
 Crafted with  by **[prastya-dev](https://github.com/prastya-dev)** — _Creator & Lead Developer_.
 
