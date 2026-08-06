@@ -17,12 +17,6 @@ RESET="\033[0m"
 
 banner() {
   echo -e "${CYAN}"
-  echo "  ░██  ░███████  ░██    ░██░██    ░██    ░██  "
-  echo "  ░██ ░██    ░██ ░██   ░██ ░██    ░██    ░██  "
-  echo "  ░██ ░██        ░███████   ░██  ░████  ░██   "
-  echo "  ░██ ░██    ░██ ░██   ░██   ░██░██ ░██░██   "
-  echo "  ░██  ░███████  ░██    ░██   ░███   ░███    "
-  echo -e "${RESET}"
   echo -e "${GRAY}  JCKW-AGENT Installer — by prastya-dev${RESET}\n"
 }
 
