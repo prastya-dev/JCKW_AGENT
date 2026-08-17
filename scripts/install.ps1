@@ -12,12 +12,61 @@ try {
     Write-Host "  by prastya-dev" -ForegroundColor DarkGray
     Write-Host ""
     
-    # Pilih Bahasa / Select Language
-    Write-Host "  Select Language / Pilih Bahasa:" -ForegroundColor White
-    Write-Host "  1. English" -ForegroundColor Gray
-    Write-Host "  2. Bahasa Indonesia" -ForegroundColor Gray
-    $LangChoice = Read-Host "  [1/2]"
-    $IsEn = ($LangChoice -eq "1")
+    # Pilih Bahasa / Select Language (Arrow Keys)
+    function Select-Language {
+        $options = @("English", "Bahasa Indonesia")
+        $selected = 1 # Default: Bahasa Indonesia
+
+        try {
+            $origCursor = $Host.UI.RawUI.CursorVisible
+            $Host.UI.RawUI.CursorVisible = $false
+
+            function Render-Menu {
+                param($sel)
+                for ($i = 0; $i -lt $options.Length; $i++) {
+                    if ($i -eq $sel) {
+                        Write-Host "  ▶ $($options[$i])" -ForegroundColor Cyan
+                    } else {
+                        Write-Host "    $($options[$i])" -ForegroundColor DarkGray
+                    }
+                }
+            }
+
+            Write-Host "  Select Language / Pilih Bahasa:" -ForegroundColor White
+            Render-Menu $selected
+
+            while ($true) {
+                $key = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+                if ($key.VirtualKeyCode -eq 38) { # Up arrow
+                    $selected = ($selected - 1 + $options.Length) % $options.Length
+                } elseif ($key.VirtualKeyCode -eq 40) { # Down arrow
+                    $selected = ($selected + 1) % $options.Length
+                } elseif ($key.VirtualKeyCode -eq 13) { # Enter
+                    break
+                } elseif ($key.Character -eq '1') {
+                    $selected = 0
+                    break
+                } elseif ($key.Character -eq '2') {
+                    $selected = 1
+                    break
+                } else {
+                    continue
+                }
+
+                $pos = $Host.UI.RawUI.CursorPosition
+                $pos.Y = [Math]::Max(0, $pos.Y - 2)
+                $Host.UI.RawUI.CursorPosition = $pos
+                Render-Menu $selected
+            }
+
+            $Host.UI.RawUI.CursorVisible = $origCursor
+            return ($selected -eq 0)
+        } catch {
+            return $false
+        }
+    }
+
+    $IsEn = Select-Language
 
     # Pastikan PowerShell menggunakan TLS 1.2 (wajib untuk GitHub)
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12

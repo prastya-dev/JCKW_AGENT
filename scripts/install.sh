@@ -174,16 +174,66 @@ try_npm_install() {
 main() {
   banner
 
-  echo -e "${GRAY}  Select Language / Pilih Bahasa:${RESET}"
-  echo -e "${GRAY}  1. English${RESET}"
-  echo -e "${GRAY}  2. Bahasa Indonesia${RESET}"
-  read -p "  [1/2]: " LANG_CHOICE
-  
-  if [ "$LANG_CHOICE" = "1" ]; then
-    IS_EN=true
-  else
-    IS_EN=false
-  fi
+  select_language() {
+    local options=("English" "Bahasa Indonesia")
+    local selected=1 # Default: Bahasa Indonesia
+
+    if [ ! -c /dev/tty ]; then
+      IS_EN=false
+      return
+    fi
+
+    # Hide cursor
+    echo -ne "\033[?25l"
+
+    print_menu() {
+      for i in "${!options[@]}"; do
+        if [ $i -eq $selected ]; then
+          echo -e "  \033[96m▶ ${options[$i]}\033[0m\033[K"
+        else
+          echo -e "    \033[90m${options[$i]}\033[0m\033[K"
+        fi
+      done
+    }
+
+    print_menu
+
+    while true; do
+      local key=""
+      read -rsn1 key </dev/tty 2>/dev/null || break
+      if [[ $key == $'\x1b' ]]; then
+        read -rsn2 -t 0.1 key </dev/tty 2>/dev/null || true
+        if [[ $key == "[A" ]]; then # Up arrow
+          selected=$(( (selected - 1 + 2) % 2 ))
+        elif [[ $key == "[B" ]]; then # Down arrow
+          selected=$(( (selected + 1) % 2 ))
+        fi
+      elif [[ $key == "" || $key == $'\n' || $key == $'\r' ]]; then # Enter
+        break
+      elif [[ $key == "1" ]]; then
+        selected=0
+        break
+      elif [[ $key == "2" ]]; then
+        selected=1
+        break
+      fi
+
+      # Move cursor up 2 lines to redraw menu
+      echo -ne "\033[2A"
+      print_menu
+    done
+
+    # Restore cursor
+    echo -ne "\033[?25h"
+
+    if [ $selected -eq 0 ]; then
+      IS_EN=true
+    else
+      IS_EN=false
+    fi
+  }
+
+  select_language
 
   # Try npm first if available
   if try_npm_install; then
