@@ -294,7 +294,22 @@ export async function sendMessage(userText: string, isSystemFollowUp: boolean = 
   const projectId = await onboardAntigravity();
 
   const selectedModelId = state.selectedModel.startsWith('ag/') ? state.selectedModel : state.selectedModel;
-  const modelsToTry = [selectedModelId, ...FALLBACK_MODELS.filter(m => m !== selectedModelId)];
+  
+  // Helper to extract model family prefix (e.g., 'gemini', 'claude')
+  const getModelFamily = (modelId: string): string => {
+    const clean = modelId.replace(/^ag\//, '');
+    const match = clean.match(/^(gemini|claude|gpt|deepseek|qwen)/i);
+    if (match) return match[1].toLowerCase();
+    return clean.split('-')[0].toLowerCase();
+  };
+
+  // Group candidates so models with the same prefix (e.g. gemini- or claude-) are tried first
+  const selectedFamily = getModelFamily(selectedModelId);
+  const candidatePool = Array.from(new Set([selectedModelId, ...FALLBACK_MODELS]));
+  const sameFamily = candidatePool.filter(m => m !== selectedModelId && getModelFamily(m) === selectedFamily);
+  const otherFamily = candidatePool.filter(m => m !== selectedModelId && getModelFamily(m) !== selectedFamily);
+  
+  const modelsToTry = [selectedModelId, ...sameFamily, ...otherFamily];
 
   printBotPrefix();
   stateManager.update({ isStreaming: true });
@@ -325,17 +340,17 @@ export async function sendMessage(userText: string, isSystemFollowUp: boolean = 
       finalError = null;
       break; // Success!
     } catch (err: any) {
-      if (err.status === 429 || err.message?.includes('RESOURCE_EXHAUSTED') || err.message?.includes('quota')) {
-        // Limited! Log internally if we want, but just continue to next model
-        finalError = err;
-        continue;
-      } else {
-        // Not a rate limit error, break and show this error
-        finalError = err;
+      finalError = err;
+      // If account verification is required, stop immediately so user sees the link
+      if (err.message?.includes('diverifikasi oleh Gemini Code Assist')) {
         break;
       }
+      // For any other error (400 invalid argument, 429 rate limit, 503 overloaded, exec mode errors, etc.), fallback to next model
+      continue;
     }
   }
+
+  stopSpinner();
 
   stateManager.update({ isStreaming: false });
 
