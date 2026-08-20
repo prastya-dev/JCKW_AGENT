@@ -77,9 +77,9 @@ download_binary() {
   info "Downloading jckw ${VERSION} for ${PLATFORM}/${ARCH_TAG}..."
 
   if command -v curl &>/dev/null; then
-    curl -fsSL "$BINARY_URL" -o "$TMP_FILE" || error "Download failed. URL: $BINARY_URL"
+    curl -fL --progress-bar "$BINARY_URL" -o "$TMP_FILE" || error "Download failed. URL: $BINARY_URL"
   else
-    wget -q "$BINARY_URL" -O "$TMP_FILE" || error "Download failed."
+    wget --progress=bar:force:noscroll "$BINARY_URL" -O "$TMP_FILE" || error "Download failed."
   fi
 
   chmod +x "$TMP_FILE"
