@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # ============================================================
 # JCKW-AGENT Install Script (Unix — Linux & macOS)
-# Usage: curl -fsSL https://raw.githubusercontent.com/prastya-dev/jckw-agent/main/scripts/install.sh | bash
+# Usage: curl -fsSL https://raw.githubusercontent.com/prastya-dev/JCKW_AGENT/main/scripts/install.sh | bash
 # ============================================================
 
 set -e
 
-REPO="prastya-dev/jckw-agent"
+REPO="prastya-dev/JCKW_AGENT"
 BIN_NAME="jckw"
 INSTALL_DIR="/usr/local/bin"
 CYAN="\033[96m"
