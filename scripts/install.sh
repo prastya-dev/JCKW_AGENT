@@ -17,7 +17,7 @@ RESET="\033[0m"
 
 banner() {
   echo -e "${CYAN}"
-  echo -e "${GRAY}  JCKW-AGENT Installer — by prastya-dev test${RESET}\n"
+  echo -e "${GRAY}  JCKW-AGENT Installer — by prastya-dev${RESET}\n"
 }
 
 error() {
@@ -26,11 +26,11 @@ error() {
 }
 
 info() {
-  echo -e "${CYAN}  ➜${RESET} $1"
+  echo -e "${CYAN}  ➜${RESET} $1" >&2
 }
 
 success() {
-  echo -e "${GREEN}  ✓ $1${RESET}"
+  echo -e "${GREEN}  ✓ $1${RESET}" >&2
 }
 
 # ── Detect Platform ──────────────────────────────────────────
